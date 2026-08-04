@@ -24,12 +24,42 @@
         </p>
 
         <div class="hero-highlights">
-            <div class="highlight-item">Custom AI Solutions</div>
-            <div class="highlight-item">AI Integration</div>
-            <div class="highlight-item">Web Development</div>
-            <div class="highlight-item">Training & Mentorship</div>
-            <div class="highlight-item">AI Assistants (AaaS)</div>
-            <div class="highlight-item">Student Project Support</div>
+            <a href="{{ url_for('main.services') }}#custom-ai-solutions"
+               class="highlight-card"
+               aria-label="Custom AI Solutions — see details">
+                <span class="highlight-icon" aria-hidden="true">✓</span>
+                <span class="highlight-label">Custom AI Solutions</span>
+            </a>
+            <a href="{{ url_for('main.services') }}#ai-integration"
+               class="highlight-card"
+               aria-label="AI Integration — see details">
+                <span class="highlight-icon" aria-hidden="true">✓</span>
+                <span class="highlight-label">AI Integration</span>
+            </a>
+            <a href="{{ url_for('main.services') }}#web-development"
+               class="highlight-card"
+               aria-label="Web Development — see details">
+                <span class="highlight-icon" aria-hidden="true">✓</span>
+                <span class="highlight-label">Web Development</span>
+            </a>
+            <a href="{{ url_for('main.services') }}#training-mentorship"
+               class="highlight-card"
+               aria-label="Training &amp; Mentorship — see details">
+                <span class="highlight-icon" aria-hidden="true">✓</span>
+                <span class="highlight-label">Training &amp; Mentorship</span>
+            </a>
+            <a href="{{ url_for('main.services') }}#ai-assistants"
+               class="highlight-card"
+               aria-label="AI Assistants (AaaS) — see details">
+                <span class="highlight-icon" aria-hidden="true">✓</span>
+                <span class="highlight-label">AI Assistants (AaaS)</span>
+            </a>
+            <a href="{{ url_for('main.services') }}#student-project-support"
+               class="highlight-card"
+               aria-label="Student Project Support — see details">
+                <span class="highlight-icon" aria-hidden="true">✓</span>
+                <span class="highlight-label">Student Project Support</span>
+            </a>
         </div>
 
         <div class="hero-actions">
@@ -43,29 +73,7 @@
 
     </div>
 
-    <div class="hero-visual">
-        <div class="mock-card">
-            <div class="mock-header">
-                <div class="mock-avatar">🤖</div>
-                <div>
-                    <div class="mock-title">AIForge Assistant</div>
-                    <div class="mock-status">Online — responds in seconds</div>
-                </div>
-            </div>
-            <div class="mock-bubbles">
-                <div class="mock-bubble user">How can I add a chatbot to my site?</div>
-                <div class="mock-bubble ai">I can scope that in 15 minutes. Share your URL and what you want it to do — I'll suggest an approach and an estimate.</div>
-                <div class="mock-bubble user">What about my existing data?</div>
-                <div class="mock-bubble ai">I can connect it via RAG — your docs, PDFs, or CRM — so answers stay grounded in your business.</div>
-            </div>
-            <div class="mock-tags">
-                <span class="mock-tag">GPT-4o</span>
-                <span class="mock-tag">RAG</span>
-                <span class="mock-tag">Whisper</span>
-                <span class="mock-tag">Custom Tools</span>
-            </div>
-        </div>
-    </div>
+   
 </section>
 
 
@@ -77,113 +85,13 @@
 
         <div class="section-head">
             <span class="section-eyebrow">What we ship</span>
-            <h2 class="section-title">Five ways we put AI to work</h2>
+            <h2 class="section-title">Six ways we put AI to work</h2>
             <p class="section-lead">
-                Whether you need AI built from scratch, AI added to an existing site, training for your team,
-                or a long-running AI assistant you can charge for — there's a service for it.
+                Whether you need AI built from scratch, AI integrated into an existing application, a modern website, team training, a long-running AI assistant, or support for academic and student projects, we have a service tailored to your needs.
             </p>
         </div>
 
-        <div class="services-grid">
-
-            <article class="service-card">
-                <div class="service-icon">🧠</div>
-                <h3 class="service-title">Custom AI Solutions</h3>
-                <p class="service-body">
-                    Chatbots, computer vision, NLP, predictive analytics and generative AI —
-                    designed around your data and shipped as production systems.
-                </p>
-                <ul class="service-points">
-                    <li>LLM apps & RAG pipelines</li>
-                    <li>Vision & OCR systems</li>
-                    <li>Predictive models</li>
-                    <li>Voice / speech AI</li>
-                </ul>
-                <a href="{{ url_for('main.services') }}#custom-ai" class="service-link">Learn more →</a>
-            </article>
-
-            <article class="service-card">
-                <div class="service-icon">🌐</div>
-                <h3 class="service-title">Web & Software Dev</h3>
-                <p class="service-body">
-                    Modern websites, dashboards, e-commerce and SaaS MVPs — built in Python, Flask
-                    and JavaScript with clean frontends that load fast.
-                </p>
-                <ul class="service-points">
-                    <li>Marketing sites & landing pages</li>
-                    <li>Custom dashboards & admin panels</li>
-                    <li>E-commerce with AI search</li>
-                    <li>SaaS MVPs</li>
-                </ul>
-                <a href="{{ url_for('main.services') }}#web" class="service-link">Learn more →</a>
-            </article>
-
-            <article class="service-card">
-                <div class="service-icon">🔌</div>
-                <h3 class="service-title">AI Integration</h3>
-                <p class="service-body">
-                    Already have a website or app? We add AI features on top — chatbots, smart search,
-                    auto-tagging, content generation, workflow automation.
-                </p>
-                <ul class="service-points">
-                    <li>Plug into existing stack</li>
-                    <li>Connect your data (SQL, CRM, docs)</li>
-                    <li>API-first, no rewrites</li>
-                    <li>Gradual rollout</li>
-                </ul>
-                <a href="{{ url_for('main.services') }}#integration" class="service-link">Learn more →</a>
-            </article>
-
-            <article class="service-card">
-                <div class="service-icon">🎓</div>
-                <h3 class="service-title">Training & Mentorship</h3>
-                <p class="service-body">
-                    Corporate workshops that turn your team into AI builders, plus 1:1 mentorship
-                    and project support for college students.
-                </p>
-                <ul class="service-points">
-                    <li>Corporate AI upskilling</li>
-                    <li>1:1 student mentorship</li>
-                    <li>Final-year project support</li>
-                    <li>Paid internships</li>
-                </ul>
-                <a href="{{ url_for('main.services') }}#training" class="service-link">Learn more →</a>
-            </article>
-
-            <article class="service-card">
-                <div class="service-icon">🤖</div>
-                <h3 class="service-title">AI Assistants (AaaS)</h3>
-                <p class="service-body">
-                    Your own hosted AI assistant, trained for a specific purpose — sales coach,
-                    HR screener, customer support, tutor — running 24/7, billed monthly.
-                </p>
-                <ul class="service-points">
-                    <li>Domain-tuned assistants</li>
-                    <li>Hosted & maintained by us</li>
-                    <li>Recurring monthly revenue</li>
-                    <li>Custom branding</li>
-                </ul>
-                <a href="{{ url_for('main.services') }}#aaas" class="service-link">Learn more →</a>
-            </article>
-
-            <article class="service-card">
-                <div class="service-icon">🚀</div>
-                <h3 class="service-title">Student AI Projects</h3>
-                <p class="service-body">
-                    Final-year and capstone projects in AI/ML — with topic selection, code,
-                    documentation and viva preparation. BE, BTech, MSc, MCA.
-                </p>
-                <ul class="service-points">
-                    <li>Topic & synopsis help</li>
-                    <li>Working code & report</li>
-                    <li>Viva prep & review</li>
-                    <li>Plagiarism-checked</li>
-                </ul>
-                <a href="{{ url_for('main.services') }}#students" class="service-link">Learn more →</a>
-            </article>
-
-        </div>
-
+        
     </div>
 </section>
 

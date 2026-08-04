@@ -257,7 +257,7 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* Premium CTA button --------------------------------------------- */
-.cta-btn {
+/* .cta-btn {
     --cta-pad-y: 11px;
     --cta-pad-x: 20px;
 
@@ -280,12 +280,21 @@ a { color: inherit; text-decoration: none; }
                 box-shadow 200ms var(--ease-out),
                 background 200ms var(--ease-out);
 }
-.cta-btn:hover {
+/* .cta-btn:hover {
     background: var(--cta-grad-hover);
     transform: translateY(-1px);
     box-shadow: 0 12px 30px -10px rgba(79, 70, 229, 0.65),
                 0 4px 10px rgba(79, 70, 229, 0.30),
                 inset 0 1px 0 rgba(255, 255, 255, 0.22);
+} */
+
+/* .cta-btn:hover {
+    background: var(--cta-grad-hover);
+    transform: translateY(-1px);
+    box-shadow:
+        0 12px 30px -10px rgba(0, 0, 0, 0.6),
+        0 4px 10px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 .cta-btn:active { transform: translateY(0); }
 .cta-btn:focus-visible {
@@ -313,6 +322,115 @@ a { color: inherit; text-decoration: none; }
     transition: transform 220ms var(--ease-out);
 }
 .cta-btn:hover .cta-btn-arrow { transform: translateX(3px); }
+ */ 
+
+ /* ===========================================
+   Premium Black CTA Button
+=========================================== */
+
+:root {
+    --cta-grad: linear-gradient(135deg, #1f1f1f 0%, #0a0a0a 100%);
+    --cta-grad-hover: linear-gradient(135deg, #2a2a2a 0%, #141414 100%);
+    --cta-glow:
+        0 10px 25px -10px rgba(0, 0, 0, 0.55),
+        0 4px 10px rgba(0, 0, 0, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.cta-btn {
+    --cta-pad-y: 11px;
+    --cta-pad-x: 20px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+
+    padding: var(--cta-pad-y) var(--cta-pad-x);
+
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    background: var(--cta-grad);
+    color: #ffffff;
+
+    font-size: 14.5px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    text-decoration: none;
+    white-space: nowrap;
+
+    box-shadow: var(--cta-glow);
+    cursor: pointer;
+
+    transition:
+        background 0.25s ease,
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        border-color 0.25s ease;
+}
+
+.cta-btn:hover {
+    background: var(--cta-grad-hover);
+    transform: translateY(-2px);
+
+    border-color: rgba(255, 255, 255, 0.12);
+
+    box-shadow:
+        0 14px 34px -12px rgba(0, 0, 0, 0.65),
+        0 6px 16px rgba(0, 0, 0, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.cta-btn:active {
+    transform: translateY(0);
+    box-shadow:
+        0 6px 16px rgba(0, 0, 0, 0.28),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.cta-btn:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.18);
+    outline-offset: 3px;
+}
+
+/* Notification Dot */
+
+.cta-btn-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+
+    background: #D4AF37;
+
+    box-shadow:
+        0 0 0 3px rgba(212, 175, 55, 0.18);
+
+    animation: cta-pulse 2.6s ease-in-out infinite;
+}
+
+@keyframes cta-pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
+    }
+    50% {
+        box-shadow: 0 0 0 7px rgba(212, 175, 55, 0.05);
+    }
+}
+
+.cta-btn-label {
+    display: inline-block;
+}
+
+.cta-btn-arrow {
+    display: inline-block;
+    transition: transform 220ms ease;
+}
+
+.cta-btn:hover .cta-btn-arrow {
+    transform: translateX(4px);
+}
+
 
 /* Reduced motion --------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
@@ -481,7 +599,7 @@ body.nav-open .nav-toggle-bar:nth-child(3) { transform: translateY(-7px) rotate(
     position: relative;
 }
 
-.hero-eyebrow {
+/* .hero-eyebrow {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -502,7 +620,34 @@ body.nav-open .nav-toggle-bar:nth-child(3) { transform: translateY(-7px) rotate(
     height: 6px;
     background: var(--accent);
     border-radius: 50%;
-    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2);
+    box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.2);
+} */
+
+.hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    background: rgba(17, 17, 17, 0.85);   /* Changed */
+    color: #ffffff;                        /* Changed */
+
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    margin-bottom: 1.5rem;
+
+    border: 1px solid rgba(255, 255, 255, 0.08);  /* Changed */
+}
+
+.hero-eyebrow .dot {
+    width: 6px;
+    height: 6px;
+    background: #111111; /* black dot */
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.12);
 }
 
 .hero-title {
@@ -533,43 +678,262 @@ body.nav-open .nav-toggle-bar:nth-child(3) { transform: translateY(-7px) rotate(
 
 .hero-actions { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
 
+/* Hero highlights — clickable service cards --------------------- */
 .hero-highlights {
     display: grid;
     grid-template-columns: repeat(2, minmax(220px, 1fr));
-    gap: 1rem 2rem;
+    gap: 0.75rem;
     margin-bottom: 2.5rem;
-    max-width: 650px;
+    max-width: 680px;
 }
 
-.highlight-item {
-    display: flex;
+.highlight-card {
+    display: inline-flex;
     align-items: center;
     gap: 0.75rem;
+    padding: 0.85rem 1.1rem;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(79, 70, 229, 0.18);
+    border-radius: 12px;
+    color: var(--ink);
     font-size: 0.98rem;
     font-weight: 600;
-    color: var(--ink);
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 220ms var(--ease-out),
+                background-color 220ms var(--ease-out),
+                border-color 220ms var(--ease-out),
+                color 220ms var(--ease-out),
+                box-shadow 220ms var(--ease-out);
+    will-change: transform;
 }
 
-.highlight-item::before {
-    content: "✓";
+/* .highlight-icon {
     width: 24px;
     height: 24px;
     border-radius: 50%;
     background: var(--accent);
-    color: white;
-    display: flex;
+    color: #ffffff;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     font-size: 0.8rem;
+    font-weight: 700;
     flex-shrink: 0;
+    transition: background-color 220ms var(--ease-out),
+                color 220ms var(--ease-out);
+} */
+
+.highlight-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+
+    /* Premium black */
+    background: linear-gradient(
+        135deg,
+        #2A2A2A 0%,
+        #151515 45%,
+        #000000 100%
+    );
+
+    /* Gold checkmark */
+    color: #D4AF37;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 0.8rem;
+    font-weight: 700;
+    flex-shrink: 0;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.08),
+        0 3px 10px rgba(0,0,0,.18);
+
+    transition: all .25s ease;
+}
+
+.highlight-label {
+    line-height: 1.2;
+    flex: 1;
+    min-width: 0;
+}
+
+/* @media (hover: hover) {
+    .highlight-card:hover {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px -10px rgba(79, 70, 229, 0.55),
+                    0 4px 10px -6px rgba(79, 70, 229, 0.30);
+    }
+    .highlight-card:hover .highlight-icon {
+        background: #ffffff;
+        color: var(--accent-strong);
+    }
+}
+
+.highlight-card:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
+
+.highlight-card:active {
+    transform: translateY(0);
+    background: var(--accent-strong);
+    border-color: var(--accent-strong);
+    color: #ffffff;
+}
+.highlight-card:active .highlight-icon {
+    background: #ffffff;
+    color: var(--accent-strong);
+}
+
+.highlight-card:visited { color: var(--ink); }
+.highlight-card:visited .highlight-icon { background: var(--accent); color: #ffffff; }
+
+@media (prefers-reduced-motion: reduce) {
+    .highlight-card,
+    .highlight-icon { transition: none; }
+    .highlight-card:hover,
+    .highlight-card:active { transform: none; }
+} */
+
+/* ==========================================================
+   Hero Highlight Cards - Premium Metallic Gold Interaction
+========================================================== */
+
+/* Hover (Desktop) ----------------------------------------- */
+@media (hover: hover) {
+    .highlight-card:hover {
+        background: linear-gradient(
+            135deg,
+            #FFFDF4 0%,
+            #F9EDB3 12%,
+            #F0D878 25%,
+            #D4AF37 45%,
+            #C89B3C 60%,
+            #B8860B 80%,
+            #8B6B11 100%
+        );
+
+        border-color: #D4AF37;
+        color: #111111;
+
+        transform: translateY(-3px);
+
+        box-shadow:
+            0 16px 36px -14px rgba(212, 175, 55, 0.45),
+            0 6px 16px rgba(212, 175, 55, 0.28),
+            inset 0 1px 0 rgba(255, 255, 255, 0.55);
+
+        transition: all 0.25s ease;
+    }
+
+    .highlight-card:hover .highlight-icon {
+        background: #111111;
+        color: #D4AF37;
+        box-shadow:
+            inset 0 1px 0 rgba(255,255,255,.08),
+            0 3px 10px rgba(0,0,0,.18);
+    }
+}
+
+/* Keyboard Focus ------------------------------------------ */
+.highlight-card:focus-visible {
+    outline: none;
+
+    background: linear-gradient(
+        135deg,
+        #FFFDF4 0%,
+        #F9EDB3 12%,
+        #F0D878 25%,
+        #D4AF37 45%,
+        #C89B3C 60%,
+        #B8860B 80%,
+        #8B6B11 100%
+    );
+
+    border-color: #D4AF37;
+    color: #111111;
+
+    box-shadow:
+        0 16px 36px -14px rgba(212,175,55,.45),
+        0 6px 16px rgba(212,175,55,.28),
+        inset 0 1px 0 rgba(255,255,255,.55);
+}
+
+.highlight-card:focus-visible .highlight-icon {
+    background: #111111;
+    color: #D4AF37;
+}
+
+/* Active (Mobile Tap / Click) ----------------------------- */
+.highlight-card:active {
+    transform: scale(0.98);
+
+    background: linear-gradient(
+        135deg,
+        #FFFDF4 0%,
+        #F9EDB3 12%,
+        #F0D878 25%,
+        #D4AF37 45%,
+        #C89B3C 60%,
+        #B8860B 80%,
+        #8B6B11 100%
+    );
+
+    border-color: #D4AF37;
+    color: #111111;
+}
+
+.highlight-card:active .highlight-icon {
+    background: #111111;
+    color: #D4AF37;
+}
+
+/* Visited State ------------------------------------------- */
+.highlight-card:visited {
+    color: var(--ink);
+}
+
+.highlight-card:visited .highlight-icon {
+    background: var(--accent);
+    color: #ffffff;
+}
+
+/* Remove Mobile Blue Tap Highlight ------------------------ */
+.highlight-card {
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Reduced Motion ------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+    .highlight-card,
+    .highlight-icon {
+        transition: none;
+    }
+
+    .highlight-card:hover,
+    .highlight-card:active {
+        transform: none;
+    }
 }
 
 @media (max-width: 768px) {
     .hero { grid-template-columns: 1fr; text-align: center; }
     .hero-subtitle { margin: 0 auto 2rem; }
-    .hero-highlights { grid-template-columns: 1fr; max-width: 320px; margin: 0 auto 2.5rem; }
+    .hero-highlights {
+        grid-template-columns: 1fr;
+        max-width: 360px;
+        margin: 0 auto 2.5rem;
+    }
     .hero-actions { justify-content: center; }
     .hero-eyebrow { margin: 0 auto 1.5rem; }
+    /* On touch devices the hover block is suppressed; active already covers it */
 }
 
 /* ------------------------------------------------------------------ */
@@ -715,7 +1079,7 @@ body.nav-open .nav-toggle-bar:nth-child(3) { transform: translateY(-7px) rotate(
 .features {
     background: linear-gradient(180deg, var(--paper) 0%, var(--paper-warm) 100%);
     border-top: 1px solid var(--border);
-    padding: 5rem 2rem;
+    padding: 2rem 2rem;
 }
 
 .features-inner {
@@ -755,6 +1119,7 @@ body.nav-open .nav-toggle-bar:nth-child(3) { transform: translateY(-7px) rotate(
 }
 
 .service-card {
+    display: block;
     background: var(--paper-card);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
@@ -762,6 +1127,10 @@ body.nav-open .nav-toggle-bar:nth-child(3) { transform: translateY(-7px) rotate(
     transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
     position: relative;
     overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .service-card::before {
@@ -782,6 +1151,21 @@ body.nav-open .nav-toggle-bar:nth-child(3) { transform: translateY(-7px) rotate(
     border-color: var(--accent);
 }
 .service-card:hover::before { transform: scaleX(1); }
+
+.service-card:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-color: var(--accent);
+}
+.service-card:active { transform: translateY(-1px); }
+.service-card:visited { color: inherit; }
+
+@media (prefers-reduced-motion: reduce) {
+    .service-card,
+    .service-card::before { transition: none; }
+    .service-card:hover,
+    .service-card:active { transform: none; }
+}
 
 .service-icon {
     width: 48px;
@@ -1220,14 +1604,27 @@ body.nav-open .nav-toggle-bar:nth-child(3) { transform: translateY(-7px) rotate(
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+
+    /* Green gradient */
+    background: linear-gradient(
+        135deg,
+        #34D399 0%,
+        #22C55E 45%,
+        #15803D 100%
+    );
+
     color: #ffffff;
+
     display: inline-flex;
     align-items: center;
     justify-content: center;
+
     font-size: 36px;
     margin-bottom: 1.5rem;
-    box-shadow: 0 12px 30px rgba(79, 70, 229, 0.3);
+
+    box-shadow:
+        0 12px 30px rgba(34, 197, 94, 0.35),
+        inset 0 1px 0 rgba(255,255,255,0.25);
 }
 .thanks-title { font-family: var(--font-display); font-size: 2.2rem; color: var(--ink); margin-bottom: 0.75rem; }
 .thanks-lead { color: var(--ink-muted); max-width: 480px; margin: 0 auto 2rem; font-size: 1.05rem; line-height: 1.7; }
@@ -1314,7 +1711,7 @@ body.nav-open .nav-toggle-bar:nth-child(3) { transform: translateY(-7px) rotate(
     .hero { padding: 3rem 1rem 2rem; }
     .nav-container { padding: 0 16px; }
     .logo-title { font-size: 18px; }
-    .logo-subtitle { display: none; }
+    .logo-subtitle { display: block; }
 }
 
 img, video, iframe { max-width: 100%; height: auto; }
