@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Primary meta -->
+    <title>{% block title %}{{ brand }} — {{ tagline }}{% endblock %}</title>
+    <meta name="description"
+          content="{% block description %}{{ brand }} provides custom AI solutions, AI integration, web development, corporate training, student mentorship and AI Assistants-as-a-Service.{% endblock %}">
+    <meta name="keywords"
+          content="AI solutions, AI integration, custom chatbot, RAG, corporate AI training, student AI projects, AI assistant, AIForge">
+    <meta name="author" content="{{ brand }}">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ brand }}">
+    <meta property="og:title" content="{{ brand }} — {{ tagline }}">
+    <meta property="og:description"
+          content="Custom AI solutions, AI integration, training and AI Assistants-as-a-Service.">
+    <meta property="og:url" content="{{ request.url_root }}">
+
+    <!-- Twitter / X card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ brand }} — {{ tagline }}">
+    <meta name="twitter:description"
+          content="Custom AI solutions, AI integration, training and AI Assistants-as-a-Service.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+
+<nav class="navbar" aria-label="Primary">
+
+    <div class="nav-container">
+
+        <!-- Logo lockup: glyph · divider · wordmark -->
+        <a href="{{ url_for('main.landing') }}"
+           class="logo-section"
+           aria-label="AIForge Technologies — Home">
+            <span class="logo-glyph">
+                <img src="{{ url_for('static', filename='images/AIForgeLOGO.jpeg') }}"
+                     alt=""
+                     class="logo-image">
+            </span>
+            <span class="logo-divider" aria-hidden="true"></span>
+            <span class="logo-text">
+                <span class="logo-title">AIForge</span>
+                <!-- Mobile identity tagline (visible ≤640px) -->
+                <span class="logo-subtitle logo-subtitle--mobile">Technologies</span>
+            </span>
+        </a>
+
+        <button type="button"
+                class="nav-toggle"
+                id="navToggle"
+                aria-label="Open menu"
+                aria-expanded="false"
+                aria-controls="navCollapsible">
+            <span class="nav-toggle-shell" aria-hidden="true">
+                <span class="nav-toggle-bar"></span>
+                <span class="nav-toggle-bar"></span>
+                <span class="nav-toggle-bar"></span>
+            </span>
+        </button>
+
+        <div class="nav-collapsible" id="navCollapsible">
+
+            <ul class="nav-menu">
+                <li><a href="{{ url_for('main.landing') }}">Home</a></li>
+                <li><a href="{{ url_for('main.services') }}">Services</a></li>
+                <li><a href="{{ url_for('main.about') }}">About</a></li>
+                <li><a href="{{ url_for('main.contact') }}">Contact</a></li>
+            </ul>
+
+            <a href="{{ url_for('main.contact') }}" class="cta-btn">
+                <span class="cta-btn-dot" aria-hidden="true"></span>
+                <span class="cta-btn-label">Start a Project</span>
+                <span class="cta-btn-arrow" aria-hidden="true">→</span>
+            </a>
+
+        </div>
+
+    </div>
+
+</nav>
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <section class="cta-banner">
+        <div class="cta-banner-inner">
+            <h2 class="cta-banner-title">
+                Have an AI idea?<br>
+                Let's forge it together.
+            </h2>
+            <p class="cta-banner-sub">
+                Free 30-minute consultation. No commitment, just a real conversation about what's possible.
+            </p>
+            <div class="cta-buttons">
+                <a href="{{ url_for('main.contact') }}" class="cta-banner-btn">
+                    📅 Book a Free Consultation
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-inner">
+
+            <div class="footer-col footer-brand-block">
+                <a href="{{ url_for('main.landing') }}" class="logo-section">
+                    <div class="logo-glyph">
+                    <img src="{{ url_for('static', filename='images/logo.png') }}"
+                        alt="AIForge Logo"
+                        class="logo-image">
+                    </div>
+                    <div class="logo-text">
+                        <span class="logo-title" style="color:#fff;">AIForge</span>
+                        <span class="logo-subtitle">Technologies</span>
+                    </div>
+                </a>
+                <p class="footer-tagline">
+                    From ideas to intelligent products. We design, build and integrate AI systems for businesses, students and creators.
+                </p>
+            </div>
+
+            <div class="footer-col">
+                <h4>Services</h4>
+                <ul>
+                    <li><a href="{{ url_for('main.services') }}">AI Solutions</a></li>
+                    <li><a href="{{ url_for('main.services') }}">Web Development</a></li>
+                    <li><a href="{{ url_for('main.services') }}">AI Integration</a></li>
+                    <li><a href="{{ url_for('main.services') }}">Training</a></li>
+                    <li><a href="{{ url_for('main.services') }}">AI Assistants</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="{{ url_for('main.about') }}">About</a></li>
+                    <li><a href="{{ url_for('main.contact') }}">Contact</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Case Studies</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Get in touch</h4>
+                <ul>
+                    <li><a href="mailto:aiforgetechno@gmail.com">aiforgetechno@gmail.com</a></li>
+                    <li><a href="https://wa.me/919999999999" target="_blank" rel="noopener">WhatsApp</a></li>
+                    <li><a href="https://www.linkedin.com/" target="_blank" rel="noopener">LinkedIn</a></li>
+                    <li><a href="https://github.com/" target="_blank" rel="noopener">GitHub</a></li>
+                </ul>
+            </div>
+
+        </div>
+        <div class="footer-bottom">
+            © {{ now_year if now_year else '2026' }} {{ brand }}. All rights reserved.
+        </div>
+    </footer>
+
+    <a href="https://wa.me/919999999999"
+       target="_blank"
+       rel="noopener"
+       class="whatsapp-float"
+       aria-label="Chat on WhatsApp">
+        <i class="fa fa-whatsapp" aria-hidden="true"></i>
+    </a>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+
+</body>
+</html>

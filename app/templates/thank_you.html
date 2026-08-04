@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Thank you — {{ brand }}{% endblock %}
+
+{% block content %}
+
+<section class="thanks-section">
+    <div>
+        <div class="thanks-icon">✓</div>
+        <h1 class="thanks-title">Thanks — we've got it.</h1>
+        <p class="thanks-lead">
+            Your enquiry is in. We'll review it and get back to you within one business day.
+            If it's urgent, ping us on WhatsApp.
+        </p>
+        <a href="{{ url_for('main.landing') }}" class="btn-primary">← Back to home</a>
+    </div>
+</section>
+
+{% endblock %}

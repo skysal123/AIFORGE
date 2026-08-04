@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}About — {{ brand }}{% endblock %}
+{% block description %}AIForge Technologies is an AI engineering studio delivering custom AI, integration, training and AI assistants for businesses and students.{% endblock %}
+
+{% block content %}
+
+<section class="content-section">
+    <div class="content-inner">
+        <div class="section-head">
+            <span class="section-eyebrow">About us</span>
+            <h2 class="section-title">An AI engineering studio, not a marketplace</h2>
+            <p class="section-lead">
+                AIForge Technologies was started by an AI engineer who kept getting the same ask from
+                very different people — a business owner, a college student, a marketing lead — all
+                trying to figure out how to actually use AI in their work.
+            </p>
+        </div>
+
+        <div class="about-grid">
+            <div class="about-card">
+                <h3 class="about-card-title">Our story</h3>
+                <p class="about-card-body">
+                    What started as one-off AI projects for clients and mentorship for final-year students
+                    has grown into a focused studio with six service lines — all under one roof, all built
+                    by a small, hands-on team. No middlemen, no offshore handoff, no AI buzzword bingo.
+                </p>
+            </div>
+            <div class="about-card">
+                <h3 class="about-card-title">Our mission</h3>
+                <p class="about-card-body">
+                    Make AI practical. We turn vague ideas ("can AI do this for us?") into production
+                    systems that real people use every day — and we make sure you understand what's
+                    under the hood so you can own it long-term.
+                </p>
+            </div>
+            <div class="about-card">
+                <h3 class="about-card-title">What makes us different</h3>
+                <p class="about-card-body">
+                    You talk to the engineer building your product. The same person who scopes your
+                    problem is the one who writes the code, deploys it, and is on call when something
+                    breaks. That's the entire difference.
+                </p>
+            </div>
+        </div>
+
+        <div class="value-strip">
+            <div class="value-cell">
+                <h3>Engineer-led</h3>
+                <p>Every project is run by the person who codes it. No account managers in between.</p>
+            </div>
+            <div class="value-cell">
+                <h3>Production-grade</h3>
+                <p>Logs, monitoring, versioning, rollback plans. The boring stuff that decides if your AI works at 3 AM.</p>
+            </div>
+            <div class="value-cell">
+                <h3>Honest scoping</h3>
+                <p>If AI doesn't fit the problem, we say so. We'd rather lose a sale than ship a project that wastes your money.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta-banner">
+    <div class="cta-banner-inner">
+        <h2 class="cta-banner-title">Want to work with us?</h2>
+        <p class="cta-banner-sub">
+            Tell us what you're working on. We'll come back within one business day with either a plan or an honest "not for us".
+        </p>
+        <a href="{{ url_for('main.contact') }}" class="cta-banner-btn">📅 Get in touch</a>
+    </div>
+</section>
+
+{% endblock %}

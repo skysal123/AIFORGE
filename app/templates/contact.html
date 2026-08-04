@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Contact — {{ brand }}{% endblock %}
+{% block description %}Tell us about your AI project. Free 30-minute consultation, no commitment.{% endblock %}
+
+{% block content %}
+
+<section class="contact-section">
+    <div class="contact-container">
+        <div class="contact-header">
+            <h1 class="contact-title">Let's build something.</h1>
+            <p class="contact-subtitle">
+                Tell us a bit about what you're working on. We'll get back within one business day —
+                usually with questions, sometimes with a quote, always honestly.
+            </p>
+        </div>
+
+        <div class="contact-card">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="{{ url_for('main.contact') }}" novalidate>
+                {{ form.csrf_token }}
+
+                <div class="form-group">
+                    {{ form.name.label }}
+                    {{ form.name(class="form-input", autocomplete="name") }}
+                    {% if form.name.errors %}
+                        {% for e in form.name.errors %}<div class="form-error">{{ e }}</div>{% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.email.label }}
+                    {{ form.email(class="form-input", autocomplete="email") }}
+                    {% if form.email.errors %}
+                        {% for e in form.email.errors %}<div class="form-error">{{ e }}</div>{% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.phone.label }}
+                    {{ form.phone(class="form-input", autocomplete="tel") }}
+                    {% if form.phone.errors %}
+                        {% for e in form.phone.errors %}<div class="form-error">{{ e }}</div>{% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.interest.label }}
+                    {{ form.interest(class="form-select") }}
+                    {% if form.interest.errors %}
+                        {% for e in form.interest.errors %}<div class="form-error">{{ e }}</div>{% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.message.label }}
+                    {{ form.message(class="form-textarea", rows=5, placeholder="A few lines on what you're trying to build, the data you have, and any deadlines.") }}
+                    {% if form.message.errors %}
+                        {% for e in form.message.errors %}<div class="form-error">{{ e }}</div>{% endfor %}
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn-submit">Send enquiry</button>
+            </form>
+
+            <div class="contact-foot">
+                Prefer email? <a href="mailto:aiforgetechno@gmail.com">aiforgetechno@gmail.com</a>
+                &nbsp;·&nbsp;
+                Or <a href="https://wa.me/919999999999" target="_blank" rel="noopener">WhatsApp us</a>.
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

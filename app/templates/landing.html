@@ -1,0 +1,304 @@
+{% extends "base.html" %}
+
+{% block title %}{{ brand }} — From ideas to intelligent products{% endblock %}
+{% block description %}AIForge Technologies builds custom AI solutions, integrates AI into existing websites, runs corporate training, mentors student AI projects and ships AI Assistants-as-a-Service.{% endblock %}
+
+{% block content %}
+
+<!-- ============================================================ -->
+<!-- HERO                                                          -->
+<!-- ============================================================ -->
+<section class="hero">
+    <div class="hero-inner">
+
+        <span class="hero-eyebrow"><span class="dot"></span> AI Engineering Studio</span>
+
+        <h1 class="hero-title">
+            From ideas to<br>
+            <em>intelligent products.</em>
+        </h1>
+
+        <p class="hero-subtitle">
+            We design, build and integrate AI systems for businesses, students and creators —
+            custom chatbots, RAG assistants, AI-powered websites, training programs and more.
+        </p>
+
+        <div class="hero-highlights">
+            <div class="highlight-item">Custom AI Solutions</div>
+            <div class="highlight-item">AI Integration</div>
+            <div class="highlight-item">Web Development</div>
+            <div class="highlight-item">Training & Mentorship</div>
+            <div class="highlight-item">AI Assistants (AaaS)</div>
+            <div class="highlight-item">Student Project Support</div>
+        </div>
+
+        <div class="hero-actions">
+            <a href="{{ url_for('main.contact') }}" class="btn-primary">
+                Start a Project
+            </a>
+            <a href="{{ url_for('main.services') }}" class="btn-ghost">
+                Explore Services →
+            </a>
+        </div>
+
+    </div>
+
+    <div class="hero-visual">
+        <div class="mock-card">
+            <div class="mock-header">
+                <div class="mock-avatar">🤖</div>
+                <div>
+                    <div class="mock-title">AIForge Assistant</div>
+                    <div class="mock-status">Online — responds in seconds</div>
+                </div>
+            </div>
+            <div class="mock-bubbles">
+                <div class="mock-bubble user">How can I add a chatbot to my site?</div>
+                <div class="mock-bubble ai">I can scope that in 15 minutes. Share your URL and what you want it to do — I'll suggest an approach and an estimate.</div>
+                <div class="mock-bubble user">What about my existing data?</div>
+                <div class="mock-bubble ai">I can connect it via RAG — your docs, PDFs, or CRM — so answers stay grounded in your business.</div>
+            </div>
+            <div class="mock-tags">
+                <span class="mock-tag">GPT-4o</span>
+                <span class="mock-tag">RAG</span>
+                <span class="mock-tag">Whisper</span>
+                <span class="mock-tag">Custom Tools</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- SERVICES                                                      -->
+<!-- ============================================================ -->
+<section class="features" id="services">
+    <div class="features-inner">
+
+        <div class="section-head">
+            <span class="section-eyebrow">What we ship</span>
+            <h2 class="section-title">Five ways we put AI to work</h2>
+            <p class="section-lead">
+                Whether you need AI built from scratch, AI added to an existing site, training for your team,
+                or a long-running AI assistant you can charge for — there's a service for it.
+            </p>
+        </div>
+
+        <div class="services-grid">
+
+            <article class="service-card">
+                <div class="service-icon">🧠</div>
+                <h3 class="service-title">Custom AI Solutions</h3>
+                <p class="service-body">
+                    Chatbots, computer vision, NLP, predictive analytics and generative AI —
+                    designed around your data and shipped as production systems.
+                </p>
+                <ul class="service-points">
+                    <li>LLM apps & RAG pipelines</li>
+                    <li>Vision & OCR systems</li>
+                    <li>Predictive models</li>
+                    <li>Voice / speech AI</li>
+                </ul>
+                <a href="{{ url_for('main.services') }}#custom-ai" class="service-link">Learn more →</a>
+            </article>
+
+            <article class="service-card">
+                <div class="service-icon">🌐</div>
+                <h3 class="service-title">Web & Software Dev</h3>
+                <p class="service-body">
+                    Modern websites, dashboards, e-commerce and SaaS MVPs — built in Python, Flask
+                    and JavaScript with clean frontends that load fast.
+                </p>
+                <ul class="service-points">
+                    <li>Marketing sites & landing pages</li>
+                    <li>Custom dashboards & admin panels</li>
+                    <li>E-commerce with AI search</li>
+                    <li>SaaS MVPs</li>
+                </ul>
+                <a href="{{ url_for('main.services') }}#web" class="service-link">Learn more →</a>
+            </article>
+
+            <article class="service-card">
+                <div class="service-icon">🔌</div>
+                <h3 class="service-title">AI Integration</h3>
+                <p class="service-body">
+                    Already have a website or app? We add AI features on top — chatbots, smart search,
+                    auto-tagging, content generation, workflow automation.
+                </p>
+                <ul class="service-points">
+                    <li>Plug into existing stack</li>
+                    <li>Connect your data (SQL, CRM, docs)</li>
+                    <li>API-first, no rewrites</li>
+                    <li>Gradual rollout</li>
+                </ul>
+                <a href="{{ url_for('main.services') }}#integration" class="service-link">Learn more →</a>
+            </article>
+
+            <article class="service-card">
+                <div class="service-icon">🎓</div>
+                <h3 class="service-title">Training & Mentorship</h3>
+                <p class="service-body">
+                    Corporate workshops that turn your team into AI builders, plus 1:1 mentorship
+                    and project support for college students.
+                </p>
+                <ul class="service-points">
+                    <li>Corporate AI upskilling</li>
+                    <li>1:1 student mentorship</li>
+                    <li>Final-year project support</li>
+                    <li>Paid internships</li>
+                </ul>
+                <a href="{{ url_for('main.services') }}#training" class="service-link">Learn more →</a>
+            </article>
+
+            <article class="service-card">
+                <div class="service-icon">🤖</div>
+                <h3 class="service-title">AI Assistants (AaaS)</h3>
+                <p class="service-body">
+                    Your own hosted AI assistant, trained for a specific purpose — sales coach,
+                    HR screener, customer support, tutor — running 24/7, billed monthly.
+                </p>
+                <ul class="service-points">
+                    <li>Domain-tuned assistants</li>
+                    <li>Hosted & maintained by us</li>
+                    <li>Recurring monthly revenue</li>
+                    <li>Custom branding</li>
+                </ul>
+                <a href="{{ url_for('main.services') }}#aaas" class="service-link">Learn more →</a>
+            </article>
+
+            <article class="service-card">
+                <div class="service-icon">🚀</div>
+                <h3 class="service-title">Student AI Projects</h3>
+                <p class="service-body">
+                    Final-year and capstone projects in AI/ML — with topic selection, code,
+                    documentation and viva preparation. BE, BTech, MSc, MCA.
+                </p>
+                <ul class="service-points">
+                    <li>Topic & synopsis help</li>
+                    <li>Working code & report</li>
+                    <li>Viva prep & review</li>
+                    <li>Plagiarism-checked</li>
+                </ul>
+                <a href="{{ url_for('main.services') }}#students" class="service-link">Learn more →</a>
+            </article>
+
+        </div>
+
+    </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- APPROACH                                                      -->
+<!-- ============================================================ -->
+<section class="approach-section" id="approach">
+    <div class="approach-inner">
+
+        <div class="section-head">
+            <span class="section-eyebrow">How we work</span>
+            <h2 class="section-title">Built by an AI engineer who actually ships</h2>
+            <p class="section-lead">
+                AIForge is run by a hands-on AI engineer — not an agency middleman.
+                That means faster iteration, deeper technical decisions, and code you'd actually write yourself.
+            </p>
+        </div>
+
+        <div class="approach-points">
+
+            <div class="approach-point">
+                <div class="approach-point-icon">🧩</div>
+                <div>
+                    <h3 class="approach-point-title">Problem first, model second</h3>
+                    <p class="approach-point-body">
+                        We start with the business problem and the data you already have —
+                        then pick the smallest AI piece that solves it.
+                    </p>
+                </div>
+            </div>
+
+            <div class="approach-point">
+                <div class="approach-point-icon">🛠️</div>
+                <div>
+                    <h3 class="approach-point-title">Production-grade from day one</h3>
+                    <p class="approach-point-body">
+                        Everything we ship is monitored, logged, and versioned. No demo-only prototypes.
+                        No black boxes you can't debug later.
+                    </p>
+                </div>
+            </div>
+
+            <div class="approach-point">
+                <div class="approach-point-icon">🔁</div>
+                <div>
+                    <h3 class="approach-point-title">Iterate on real usage</h3>
+                    <p class="approach-point-body">
+                        We instrument every system we build and review the data weekly
+                        so the model gets sharper the longer it runs.
+                    </p>
+                </div>
+            </div>
+
+            <div class="approach-point">
+                <div class="approach-point-icon">🔒</div>
+                <div>
+                    <h3 class="approach-point-title">Your data stays yours</h3>
+                    <p class="approach-point-body">
+                        We use retrieval over your data — not training on it —
+                        so your proprietary knowledge never leaves your control.
+                    </p>
+                </div>
+            </div>
+
+            <div class="approach-point">
+                <div class="approach-point-icon">📈</div>
+                <div>
+                    <h3 class="approach-point-title">Costs that scale sanely</h3>
+                    <p class="approach-point-body">
+                        We pick the cheapest model that meets the quality bar and add caching,
+                        batching and routing before the bill shows up.
+                    </p>
+                </div>
+            </div>
+
+            <div class="approach-point">
+                <div class="approach-point-icon">🤝</div>
+                <div>
+                    <h3 class="approach-point-title">Direct line, no ticket queues</h3>
+                    <p class="approach-point-body">
+                        You talk to the engineer building your product.
+                        Decisions in hours, not weekly status meetings.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+
+<!-- ============================================================ -->
+<!-- STATS                                                         -->
+<!-- ============================================================ -->
+<section class="stats-section">
+    <div class="stats-inner">
+        <div class="stat">
+            <div class="stat-number">5+</div>
+            <div class="stat-label">Years in AI engineering</div>
+        </div>
+        <div class="stat">
+            <div class="stat-number">20+</div>
+            <div class="stat-label">AI systems shipped</div>
+        </div>
+        <div class="stat">
+            <div class="stat-number">100+</div>
+            <div class="stat-label">Students mentored</div>
+        </div>
+        <div class="stat">
+            <div class="stat-number">6</div>
+            <div class="stat-label">Product lines</div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
