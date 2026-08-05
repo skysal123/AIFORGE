@@ -4,7 +4,7 @@ from flask_wtf import FlaskForm
 from wtforms import EmailField, SelectField, StringField, TextAreaField
 from wtforms.validators import DataRequired, Email, Length, Optional
 
-from ...extensions import db, mail
+from ...extensions import csrf, db, mail
 from ...models import Enquiry
 from ...utils.mail import send_enquiry_notification
 from . import main_bp
@@ -145,6 +145,7 @@ def debug_mail_config():
 
 
 @main_bp.route("/debug/send-test-email", methods=["POST"])
+@csrf.exempt
 def debug_send_test_email():
     """Send a real test email synchronously and return the exception (if any).
 
