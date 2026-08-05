@@ -1,10 +1,10 @@
 """Public-facing routes for AIForge Technologies."""
-from flask import current_app, flash, redirect, render_template, url_for
+from flask import current_app, flash, jsonify, redirect, render_template, request, url_for
 from flask_wtf import FlaskForm
 from wtforms import EmailField, SelectField, StringField, TextAreaField
 from wtforms.validators import DataRequired, Email, Length, Optional
 
-from ...extensions import db
+from ...extensions import db, mail
 from ...models import Enquiry
 from ...utils.mail import send_enquiry_notification
 from . import main_bp
@@ -113,3 +113,86 @@ def thank_you():
         "thank_you.html",
         brand=current_app.config["BRAND_NAME"],
     )
+
+
+# --------------------------------------------------------------------- #
+# Debug helpers — temporary, for diagnosing SendGrid wiring on Render.    #
+# Remove or gate behind ADMIN_TOKEN before going to a real production.   #
+# --------------------------------------------------------------------- #
+
+@main_bp.route("/debug/mail-config")
+def debug_mail_config():
+    """Return the mail-related env vars Flask-Mail is actually using.
+
+    Doesn't include the password — that one stays masked.
+    """
+    cfg = current_app.config
+    return jsonify(
+        {
+            "MAIL_SERVER":            cfg.get("MAIL_SERVER"),
+            "MAIL_PORT":              cfg.get("MAIL_PORT"),
+            "MAIL_USE_TLS":           cfg.get("MAIL_USE_TLS"),
+            "MAIL_USE_SSL":           cfg.get("MAIL_USE_SSL"),
+            "MAIL_USERNAME":          cfg.get("MAIL_USERNAME"),
+            "MAIL_PASSWORD_set":      bool(cfg.get("MAIL_PASSWORD")),
+            "MAIL_PASSWORD_length":   len(cfg.get("MAIL_PASSWORD") or ""),
+            "MAIL_DEFAULT_SENDER":    cfg.get("MAIL_DEFAULT_SENDER"),
+            "CONTACT_EMAIL":          cfg.get("CONTACT_EMAIL"),
+            "flask_mail_default_sender": getattr(mail, "default_sender", None),
+            "AIFORGE_ENV":            cfg.get("AIFORGE_ENV"),
+        }
+    )
+
+
+@main_bp.route("/debug/send-test-email", methods=["POST"])
+def debug_send_test_email():
+    """Send a real test email synchronously and return the exception (if any).
+
+    Hit this with curl from your terminal:
+
+        curl -X POST https://aiforge-zaxl.onrender.com/debug/send-test-email
+
+    Whatever this prints is what Flask-Mail is actually doing.
+    """
+    from flask_mail import Message
+
+    cfg = current_app.config
+    recipient = cfg.get("CONTACT_EMAIL")
+    sender = cfg.get("MAIL_DEFAULT_SENDER") or cfg.get("MAIL_USERNAME")
+    if not recipient or not sender:
+        return jsonify(
+            ok=False,
+            error="Missing CONTACT_EMAIL / MAIL_USERNAME / MAIL_DEFAULT_SENDER",
+            config={
+                "recipient_set": bool(recipient),
+                "sender": sender,
+            },
+        ), 400
+
+    msg = Message(
+        subject="[AIForge] Render mail debug test",
+        sender=sender,
+        recipients=[recipient],
+        body=(
+            "If you're reading this in your inbox, mail is wired up.\n\n"
+            f"FROM: {sender}\nTO: {recipient}\nSERVER: {cfg.get('MAIL_SERVER')}\n"
+            f"PORT: {cfg.get('MAIL_PORT')}\nTLS: {cfg.get('MAIL_USE_TLS')}\n"
+            f"SSL: {cfg.get('MAIL_USE_SSL')}\n"
+        ),
+    )
+
+    try:
+        mail.send(msg)
+        return jsonify(ok=True, sent_to=recipient, from_=sender)
+    except Exception as exc:
+        return jsonify(
+            ok=False,
+            error_class=type(exc).__name__,
+            error_message=str(exc),
+            config={
+                "MAIL_SERVER": cfg.get("MAIL_SERVER"),
+                "MAIL_PORT":   cfg.get("MAIL_PORT"),
+                "MAIL_USE_TLS": cfg.get("MAIL_USE_TLS"),
+                "MAIL_USE_SSL": cfg.get("MAIL_USE_SSL"),
+            },
+        ), 500
