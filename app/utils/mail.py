@@ -15,13 +15,20 @@ from ..extensions import mail
 log = logging.getLogger(__name__)
 
 
+# def _send_async(app, msg):
+#     with app.app_context():
+#         try:
+#             mail.send(msg)
+#         except Exception:  # pragma: no cover
+#             log.exception("Failed to send enquiry email")
+
 def _send_async(app, msg):
     with app.app_context():
         try:
             mail.send(msg)
-        except Exception:  # pragma: no cover
-            log.exception("Failed to send enquiry email")
-
+            print("✅ Email sent")
+        except Exception as e:
+            print("❌ Email failed:", e)
 
 def send_enquiry_notification(enquiry):
     """Email the configured recipient about a new enquiry.
