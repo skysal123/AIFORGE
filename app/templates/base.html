@@ -28,9 +28,10 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
     {% block head %}{% endblock %}
 </head>
 <body>
@@ -39,18 +40,14 @@
 
     <div class="nav-container">
 
-        <!-- Logo lockup: glyph · divider · wordmark -->
+        <!-- Wordmark-only logo lockup -->
         <a href="{{ url_for('main.landing') }}"
            class="logo-section"
            aria-label="AIForge Technologies — Home">
-            <span class="logo-glyph">
-                <img src="{{ url_for('static', filename='images/AIForgeLOGO.jpeg') }}"
-                     alt=""
-                     class="logo-image">
-            </span>
-            <span class="logo-divider" aria-hidden="true"></span>
             <span class="logo-text">
-                <span class="logo-title">AIForge</span>
+                <span class="logo-title">
+                    <span class="logo-mark-ai">AI</span><span class="logo-mark-forge">F<span class="mark-o">o</span>rge</span>
+                </span>
                 <!-- Mobile identity tagline (visible ≤640px) -->
                 <span class="logo-subtitle logo-subtitle--mobile">Technologies</span>
             </span>
@@ -116,15 +113,12 @@
 
             <div class="footer-col footer-brand-block">
                 <a href="{{ url_for('main.landing') }}" class="logo-section">
-                    <div class="logo-glyph">
-                    <img src="{{ url_for('static', filename='images/AIForgeLOGO.jpeg') }}"
-                        alt="AIForge Logo"
-                        class="logo-image">
-                    </div>
-                    <div class="logo-text">
-                        <span class="logo-title" style="color:#fff;">AIForge</span>
+                    <span class="logo-text">
+                        <span class="logo-title">
+                            <span class="logo-mark-ai">AI</span><span class="logo-mark-forge">F<span class="mark-o">o</span>rge</span>
+                        </span>
                         <span class="logo-subtitle">Technologies</span>
-                    </div>
+                    </span>
                 </a>
                 <p class="footer-tagline">
                     From ideas to intelligent products. We design, build and integrate AI systems for businesses, students and creators.
@@ -177,6 +171,7 @@
     </a>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
     {% block scripts %}{% endblock %}
 
 </body>

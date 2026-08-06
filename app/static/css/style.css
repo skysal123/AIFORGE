@@ -49,7 +49,7 @@
     --border-soft: #f1f5f9;
 
     --font-display: 'DM Serif Display', Georgia, serif;
-    --font-body: 'DM Sans', system-ui, sans-serif;
+    --font-body: 'Geist', 'Inter', system-ui, sans-serif;
 
     --max-width: 1200px;
 
@@ -137,7 +137,7 @@ a { color: inherit; text-decoration: none; }
     position: relative;
 }
 
-/* Logo lockup ----------------------------------------------------- */
+/* Logo lockup — typography-only wordmark -------------------------- */
 .logo-section {
     display: inline-flex;
     align-items: center;
@@ -145,7 +145,7 @@ a { color: inherit; text-decoration: none; }
     text-decoration: none;
     color: var(--nav-text);
     flex-shrink: 0;
-    padding: 4px 8px 4px 4px;
+    padding: 6px 10px;
     border-radius: 12px;
     transition: background-color 200ms var(--ease-out),
                 transform     200ms var(--ease-out);
@@ -153,58 +153,93 @@ a { color: inherit; text-decoration: none; }
 .logo-section:hover { background-color: rgba(15, 23, 42, 0.04); }
 .logo-section:active { transform: scale(0.985); }
 
-.logo-glyph {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
-    box-shadow:
-        inset 0 0 0 1px rgba(79, 70, 229, 0.14),
-        0 6px 18px -8px rgba(79, 70, 229, 0.45);
-    overflow: hidden;
-}
-
-.logo-image {
-    width: 30px;
-    height: 30px;
-    object-fit: contain;
-    display: block;
-}
-
-.logo-divider {
-    width: 1px;
-    height: 26px;
-    background: linear-gradient(180deg,
-                transparent 0%,
-                rgba(15, 23, 42, 0.18) 50%,
-                transparent 100%);
-    margin: 0 2px;
-}
-
 .logo-text {
     display: inline-flex;
     flex-direction: column;
     line-height: 1.1;
 }
 
+/* Wordmark — AI in solid ink, Forge in gradient */
 .logo-title {
+    display: inline-flex;
+    align-items: baseline;
     font-size: 22px;                    /* premium wordmark size */
     font-weight: 700;
-    letter-spacing: -0.018em;
-    color: var(--nav-text);
+    letter-spacing: -0.025em;
     font-feature-settings: "ss01" on;
+    line-height: normal;
 }
+
+.logo-mark-ai {
+    font-style: normal;
+    font-weight: 800;
+    margin-right: 3px;
+
+    background: linear-gradient(
+        180deg,
+        #1e1c16 0%,
+        #FFB300 20%,
+        #FF6F00 45%,
+        #F4511E 70%,
+        #B71C1C 100%
+    );
+
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+
+    display: inline-block;
+}
+
+.logo-mark-forge {
+    background: var(--cta-grad);
+    -webkit-background-clip: text;
+            background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+    position: relative;
+    display: inline-block;
+}
+
+/* Micro-detail: "AI node" dot inside the O of Forge.
+   Implemented as a pseudo-element on a wrapping <span class="mark-o">
+   so we get a positioned anchor without markup hacks. */
+/* .mark-o {
+    position: relative;
+    display: inline-block;
+} */
+/* .mark-o::after {
+    content: "";
+    position: absolute;
+    top: 0.18em;
+    right: 0.05em;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--cta-grad);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.6);
+} */
 
 .logo-subtitle {
     font-size: 11.5px;
-    font-weight: 600;
+    font-weight: 500;
     letter-spacing: 0.22em;
-    color: var(--nav-muted);
+    color: #181c20;
     text-transform: uppercase;
     margin-top: 3px;
+}
+
+/* Footer overrides — wordmark on dark background */
+.footer-brand-block .logo-section:hover {
+    background-color: rgba(255, 255, 255, 0.04);
+}
+.footer-brand-block .logo-mark-ai {
+    color: #ffffff;
+}
+.footer-brand-block .logo-subtitle {
+    color: #94a3b8;
 }
 
 /* Default: desktop identity is "AIForge" + small "TECHNOLOGIES"     */
@@ -573,7 +608,6 @@ body.nav-open .nav-toggle-bar:nth-child(3) { transform: translateY(-7px) rotate(
 
 /* Very small phones ---------------------------------------------- */
 @media (max-width: 380px) {
-    .logo-divider { display: none; }
     .logo-title   { font-size: 19px; }
     .logo-subtitle--mobile { font-size: 10px; letter-spacing: 0.2em; }
 }
@@ -625,29 +659,50 @@ body.nav-open .nav-toggle-bar:nth-child(3) { transform: translateY(-7px) rotate(
 
 .hero-eyebrow {
     display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+
+    background: rgba(19, 15, 15, 0.9);
+    color: #ffffff;
+
+    padding: 0.20rem 0.50rem;
+    border-radius: 40px;
+
+    border: 1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(12px);
+
+    margin-bottom: 1.5rem;
+}
+
+.hero-eyebrow-title {
+    display: flex;
     align-items: center;
     gap: 8px;
 
-    background: rgba(17, 17, 17, 0.85);   /* Changed */
-    color: #ffffff;                        /* Changed */
-
     font-size: 0.78rem;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    padding: 0.4rem 0.9rem;
-    border-radius: 999px;
-    margin-bottom: 1.5rem;
+    color: #ffffff;
+}
 
-    border: 1px solid rgba(255, 255, 255, 0.08);  /* Changed */
+.hero-eyebrow-subtitle {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: rgb(255, 255, 255);
+    text-transform: none;
+    letter-spacing: 0.02em;
+    text-align: center;
+    line-height: 1.4;
 }
 
 .hero-eyebrow .dot {
-    width: 6px;
-    height: 6px;
-    background: #111111; /* black dot */
+    width: 8px;
+    height: 8px;
+    background: #e5faed;   /* Green indicator */
     border-radius: 50%;
-    box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.12);
+    box-shadow: 0 0 10px rgba(34,197,94,0.5);
 }
 
 .hero-title {
