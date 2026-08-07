@@ -623,7 +623,7 @@ body.nav-open .nav-toggle-bar:nth-child(3) { transform: translateY(-7px) rotate(
 /* ------------------------------------------------------------------ */
 
 .hero {
-    padding: 5rem 2rem 4rem;
+    padding: 1rem 2rem 4rem;
     display: grid;
     grid-template-columns: 1.05fr 1fr;
     gap: 4rem;
@@ -631,78 +631,6 @@ body.nav-open .nav-toggle-bar:nth-child(3) { transform: translateY(-7px) rotate(
     max-width: var(--max-width);
     margin: 0 auto;
     position: relative;
-}
-
-/* .hero-eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--accent-light);
-    color: var(--accent-strong);
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 0.4rem 0.9rem;
-    border-radius: 999px;
-    margin-bottom: 1.5rem;
-    border: 1px solid #c7d2fe;
-}
-
-.hero-eyebrow .dot {
-    width: 6px;
-    height: 6px;
-    background: var(--accent);
-    border-radius: 50%;
-    box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.2);
-} */
-
-.hero-eyebrow {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-
-    background: rgba(19, 15, 15, 0.9);
-    color: #ffffff;
-
-    padding: 0.20rem 0.50rem;
-    border-radius: 40px;
-
-    border: 1px solid rgba(255,255,255,0.08);
-    backdrop-filter: blur(12px);
-
-    margin-bottom: 1.5rem;
-}
-
-.hero-eyebrow-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: #ffffff;
-}
-
-.hero-eyebrow-subtitle {
-    font-size: 0.82rem;
-    font-weight: 500;
-    color: rgb(255, 255, 255);
-    text-transform: none;
-    letter-spacing: 0.02em;
-    text-align: center;
-    line-height: 1.4;
-}
-
-.hero-eyebrow .dot {
-    width: 8px;
-    height: 8px;
-    background: #e5faed;   /* Green indicator */
-    border-radius: 50%;
-    box-shadow: 0 0 10px rgba(34,197,94,0.5);
 }
 
 .hero-title {
@@ -732,6 +660,147 @@ body.nav-open .nav-toggle-bar:nth-child(3) { transform: translateY(-7px) rotate(
 }
 
 .hero-actions { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+
+/* ------------------------------------------------------------------ */
+/* Hero studio badge — "AI Engineering Studio" eyebrow                */
+/* ------------------------------------------------------------------ */
+
+.hero-studio {
+    display: inline-flex;
+    align-items: center;
+    gap: 22px;
+    padding: 12px 22px;
+    background: var(--paper-card);
+    border: 1px solid rgba(255, 106, 0, 0.18);
+    border-radius: 999px;
+    box-shadow:
+        0 12px 32px -16px rgba(17, 17, 17, 0.18),
+        0 2px 6px   rgba(17, 17, 17, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    margin: -1.5rem 0 1.75rem;
+    transition: box-shadow 320ms var(--ease-out),
+                border-color 320ms var(--ease-out);
+    animation: hero-studio-in 700ms var(--ease-out) both;
+    max-width: 100%;
+}
+
+.hero-studio:hover {
+    border-color: rgba(255, 106, 0, 0.55);
+    box-shadow:
+        0 18px 44px -14px rgba(255, 106, 0, 0.28),
+        0 4px 12px  rgba(17, 17, 17, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+@keyframes hero-studio-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-studio { animation: none; }
+}
+
+/* --- Right-side content ------------------------------------------ */
+.hero-studio-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.hero-studio-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #FF6A00;
+}
+
+.hero-studio-label-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #FF6A00;
+    box-shadow:
+        0 0 0 3px rgba(255, 106, 0, 0.15),
+        0 0 8px  rgba(255, 106, 0, 0.6);
+}
+
+.hero-studio-services {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 14px;
+}
+
+.hero-studio-service {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--ink);
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: transparent;
+    transition: transform 240ms var(--ease-out),
+                background-color 240ms var(--ease-out),
+                color 240ms var(--ease-out);
+    opacity: 0;
+    animation: hero-studio-service-in 500ms var(--ease-out) forwards;
+}
+
+.hero-studio-service:nth-child(1) { animation-delay: 350ms; }
+.hero-studio-service:nth-child(2) { animation-delay: 450ms; }
+.hero-studio-service:nth-child(3) { animation-delay: 550ms; }
+.hero-studio-service:nth-child(4) { animation-delay: 650ms; }
+
+@keyframes hero-studio-service-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-studio-service {
+        opacity: 1;
+        animation: none;
+    }
+}
+
+@media (hover: hover) {
+    .hero-studio-service:hover {
+        transform: translateY(-4px);
+        background: rgba(255, 106, 0, 0.08);
+        color: #111111;
+    }
+}
+
+/* --- Mobile ------------------------------------------------------ */
+@media (max-width: 768px) {
+    .hero-studio {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 18px;
+        border-radius: 22px;
+    }
+
+    .hero-studio-services {
+        gap: 8px;
+        width: 100%;
+    }
+
+    .hero-studio-service {
+        font-size: 0.88rem;
+    }
+}
 
 /* Hero highlights — clickable service cards --------------------- */
 .hero-highlights {
@@ -987,7 +1056,7 @@ body.nav-open .nav-toggle-bar:nth-child(3) { transform: translateY(-7px) rotate(
         margin: 0 auto 2.5rem;
     }
     .hero-actions { justify-content: center; }
-    .hero-eyebrow { margin: 0 auto 1.5rem; }
+    .hero-studio { margin: 0 auto 1.5rem; }
     /* On touch devices the hover block is suppressed; active already covers it */
 }
 
