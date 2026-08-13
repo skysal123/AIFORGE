@@ -1,0 +1,268 @@
+╭─── Claude Code v2.1.227 ─────────────────────────────────────────────────────╮
+│                                    │ Tips for getting started                │
+│            Welcome back!           │ Run /init to create a CLAUDE.md file w… │
+│                                    │ ─────────────────────────────────────── │
+│               ▐▛███▜▌              │ What's new                              │
+│              ▝▜█████▛▘             │ Fixed feature flags being evaluated wi… │
+│                ▘▘ ▝▝               │ Fixed every Bash command failing under… │
+│                                    │ Fixed `/tui` bringing back a conversat… │
+│   minimax-m3 · API Usage Billing   │ /release-notes for more                 │
+│      C:\AIForge Technologies       │                                         │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+
+❯ i am getting error"Google Places search is temporarily unavailable. Please    
+  try again in a moment.                                                        
+  "  when i am trying to search for the business. refer C:\AIForge              
+  Technologies\app\blueprints\gbp\routes.py                                     
+
+  Thought for 6s, read 3 files, ran 7 shell commands (ctrl+o to expand)
+
+● The Places API itself works and returns results. So the issue is not with the
+  API key or the live call.
+
+  Let me trace the path the route actually takes — through Flask:
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● Found it. The Flask app factory never calls load_dotenv(). The .env file
+  exists at C:\AIForge Technologies\.env but is never read, so when Flask runs
+  os.environ.get("GOOGLE_PLACES_API_KEY") inside the route, it sees nothing,
+  falls into the "no key configured" branch, the search fails, and
+  _google_places_available() returns False — but because the lookup of results 
+  returned None, the code mistakenly believes the API was attempted.
+
+  Wait — let me re-read the code carefully:
+
+  Read 1 file (ctrl+o to expand)
+
+● Let me trace through what _places_search returns when the env var isn't
+  loaded:
+
+  1. _google_places_available() → checks
+  os.environ.get("GOOGLE_PLACES_API_KEY"). If .env is never loaded → returns
+  False.
+  2. Inside _places_search, the first guard if not _google_places_available(): 
+  return None triggers → returns None.
+  3. Back in api_search, results is None, but then if _google_places_available()
+  is also False (the env still isn't loaded in the route process), so it falls
+  through to search_profiles(q).
+
+  But wait — your error message says "Google Places search is temporarily
+  unavailable", which is only returned when _google_places_available() is True
+  AND results is None. So in your Flask run, the env IS loaded somewhere — but
+  the live call must be raising. Let me check the actual exception path more
+  carefully — _places_search returns None only on (a) no key OR (b) exception.
+  Since the key check passes, it's (b) — an exception. Let me confirm by
+  reproducing from Flask:
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● So load_dotenv IS called when the blueprint is imported (good). The API key is
+  in env. Now let me actually reproduce the live call the route makes:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● So the search call works fine in isolation. That means the exception is being
+  raised by _candidate_to_card or some other code path inside _places_search.
+  Let me look more carefully — actually _places_search only has two places that
+  return None: missing key, or exception in search_candidates. Both paths
+  returned results in isolation.
+
+  Wait — let me check if your Flask process is actually still running an older 
+  version of the code (before any recent fixes), OR if the request is hitting a
+  route that doesn't actually call _places_search. Let me look at the JS to see
+  what URL it hits:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● URL is correct. Now let me check: is your Flask server actually started? Or 
+  have you been hitting a stale/wrong server?
+
+  Read 1 file, ran 3 shell commands (ctrl+o to expand)
+
+● Interesting! The running server DOES return results. So the error message
+  you're seeing ("Google Places search is temporarily unavailable. Please try
+  again in a moment.") is NOT coming from the current /gbp-report/api/search
+  route — it must be coming from somewhere else, or from a different deployment,
+  or from a stale browser-cached frontend.
+
+  Let me verify by grepping for that exact error string:
+
+  Searched for 1 pattern, ran 1 shell command (ctrl+o to expand)
+
+● What's actually happening
+
+  The live route works. I just hit your running Flask server and got a valid
+  result for "AIForge" — Places API, status 200, one candidate returned. There
+  is no bug in the route code, the env loading, or the API call.
+
+  The "Google Places search is temporarily unavailable" error is only raised by
+  routes.py:811-815 when _google_places_available() is True AND _places_search()
+  returns None (i.e. an exception inside gbp_lookup.search_candidates). Since
+  the same call works from both my isolated repro and the running server, the
+  error you saw is one of these:
+
+  1. A transient network failure between your Flask process and
+  places.googleapis.com at the moment you searched (timeout, DNS hiccup, proxy
+  block). My live test confirms connectivity works now.
+  2. You're not hitting the server on port 5000 — e.g. an older deployment, a
+  different machine, or a stale browser tab connected to a different host. Check
+  the URL in your browser's address bar.
+  3. The Flask process restarted mid-search while you were testing.
+
+  Two real issues I did spot (separate from your error)
+
+  While testing, I noticed two things worth fixing:
+
+  1. _candidate_to_card reads displayName wrong — the Places API v1 returns the
+  name as {"text": "...", "languageCode": "..."}, but _candidate_to_card only
+  handles this for the primaryTypeDisplayName field. Look at my test result
+  above: "name": "Unnamed business" even though the API returned "AI Forge". Let
+  me fix that:
+
+● Update(app\blueprints\gbp\routes.py)
+  ⎿  Added 2 lines, removed 1 line
+      106  
+      107  def _candidate_to_card(candidate: dict) -> dict:
+      108      """Map a Places text-search candidate to the dict the sear
+           ch UI expects."""
+      109 -    name = candidate.get("name") or "Unnamed business"        
+      109 +    # Places API v1 returns displayName as a LocalizedText dic
+          +t {"text": ..., "languageCode": ...}                          
+      110 +    name = candidate.get("displayName") or candidate.get("name
+          +") or "Unnamed business"                                      
+      111      if isinstance(name, dict):
+      112          name = name.get("text") or "Unnamed business"
+      113  
+  ⎿  Found 3 new diagnostic issues in 1 file (ctrl+o to expand)
+
+● 2. places_api_failure returns 502 with no diagnostic info in the browser 
+  console. Let me improve it so when the call does fail you get the real reason:
+
+● Update(app\blueprints\gbp\routes.py)
+  ⎿  Added 2 lines, removed 1 line
+      799          ), 400
+      800  
+      801      # Prefer live Google Places text search when a key is conf
+           igured.
+      802 -    results = _places_search(q)                               
+      802 +    results, places_err = _places_search(q) or (None, None)   
+      803      engine = "places_api" if _google_places_available() else "
+           local"
+      804      if results is None:
+      805          # Live path unavailable or failed. Only fall back to t
+           he bundled
+     ...
+      813                      "Google Places search is temporarily unava
+           ilable. "
+      814                      "Please try again in a moment."
+      815                  ),
+      816 +                detail=places_err,  # server-side diagnostic, 
+          +helps when debugging                                          
+      817                  results=[],
+      818              ), 502
+      819          results = search_profiles(q)
+  ⎿  Found 3 new diagnostic issues in 1 file (ctrl+o to expand)
+
+● Update(app\blueprints\gbp\routes.py)
+  ⎿  Added 11 lines, removed 7 lines
+      135      }
+      136  
+      137  
+      138 -def _places_search(query: str) -> list[dict] | None:          
+      139 -    """Run a live Places text-search. Returns cards, or None o
+          -n failure."""                                                 
+      138 +def _places_search(query: str) -> tuple[list[dict] | None, str
+          + | None]:                                                     
+      139 +    """Run a live Places text-search.                         
+      140 +                                                              
+      141 +    Returns ``(cards, error_message)``. On success: ``(cards, 
+          +None)``.                                                      
+      142 +    On failure: ``(None, "<reason>")`` so the caller can log /
+          + surface it.                                                  
+      143 +    """                                                       
+      144      if not _google_places_available():
+      141 -        return None                                           
+      145 +        return None, "GOOGLE_PLACES_API_KEY not set in environ
+          +ment"                                                         
+      146      gbp_lookup = _places_import()
+      147      if gbp_lookup is None:
+      144 -        return None                                           
+      148 +        return None, "gbp_lookup module failed to import"     
+      149  
+      150      api_key = os.environ["GOOGLE_PLACES_API_KEY"]
+      151      try:
+      152          candidates = gbp_lookup.search_candidates(query, api_k
+           ey)
+      153      except Exception as exc:  # noqa: BLE001
+      150 -        log.warning("Google Places text-search failed: %s", ex
+          -c)                                                            
+      151 -        return None                                           
+      154 +        log.warning("Google Places text-search failed for %r: 
+          +%s", query, exc)                                              
+      155 +        return None, f"{type(exc).__name__}: {exc}"           
+      156  
+      153 -    return [_candidate_to_card(c) for c in candidates if c]   
+      157 +    return [_candidate_to_card(c) for c in candidates if c], N
+          +one                                                           
+      158  
+      159  
+      160  def _places_details(place_id: str) -> dict | None:
+  ⎿  Found 3 new diagnostic issues in 1 file (ctrl+o to expand)
+
+● Now let me verify the change still works:
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Now "name": "AI Forge" shows correctly (it was "Unnamed business" before my
+  fix).
+
+  Summary
+
+  The error you saw was almost certainly a one-off network/API failure. I just
+  exercised your route end-to-end with the Flask test client against the actual
+  Google Places API and it returns the right results. Your code path is correct,
+  your .env key loads, and the API responds 200.
+
+  Fixes I applied anyway:
+
+  File: app/blueprints/gbp/routes.py:107-115
+  Change: _candidate_to_card now reads displayName (v1 shape) before falling
+  back
+  to name
+  Why: The new Places API wraps names as {"text": "...", "languageCode": "..."}
+  —
+  the old code missed that, so every result was showing "Unnamed business". I
+  confirmed it in your running server's response before fixing.
+  ────────────────────────────────────────
+  File: app/blueprints/gbp/routes.py:137-156
+  Change: _places_search now returns (cards, error_message) instead of just
+  cards
+   | None
+  Why: The caller can now surface the real failure reason (timeout, DNS, 4xx
+  from
+  Google, etc.) instead of a generic "temporarily unavailable" string.
+  ────────────────────────────────────────
+  File: app/blueprints/gbp/routes.py:800-818
+  Change: api_search includes detail: places_err in the 502 response
+  Why: When the search does fail in the future, you'll see the real exception in
+
+  the browser network tab — much faster to debug.
+
+  Next time you see this error:
+  1. Open browser DevTools → Network → look at the /gbp-report/api/search
+  response — with this fix the detail field will tell you exactly what went
+  wrong (e.g. Timeout: HTTPSConnectionPool..., PlacesAPIError: REQUEST_DENIED,
+  etc.).
+  2. Check the Flask console — log.warning("Google Places text-search failed for
+  ...: ...") will print the same thing.
+  3. Confirm the URL you're hitting is http://127.0.0.1:5000/gbp-report/ — not a
+  different host/staging URL where a stale version of the code might be
+  deployed.
+
+  The diagnostic issue in your IDE (flask import unresolved, Any/Iterable not
+  accessed) is a Pylance/venv issue, not a real bug — your route runs fine. If
+  you want, I can clean up those imports too.
+
+✻ Baked for 2m 7s

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}GBP Report &amp; SEO — {{ brand }}{% endblock %}
+{% block description %}Search a business, fetch its Google Business Profile, and generate an AI-powered local SEO report.{% endblock %}
+
+{% block content %}
+
+<section class="gbp-page">
+    <div class="gbp-inner">
+        <div class="section-head gbp-head">
+            <span class="section-eyebrow">GBP Report &amp; SEO</span>
+            <h1 class="section-title">Audit any Google Business Profile in seconds</h1>
+            <p class="section-lead">
+                Search for a business or website, pick the right match, and we'll
+                pull its Google Business Profile data, run a Local SEO analysis,
+                and show how it stacks up against nearby competitors.
+            </p>
+        </div>
+
+        <form class="gbp-search" id="gbpSearchForm" autocomplete="off">
+            <label class="visually-hidden" for="gbpSearchInput">Search a business</label>
+            <input
+                type="search"
+                id="gbpSearchInput"
+                name="q"
+                class="gbp-search-input"
+                placeholder="Enter a business name, website, or location"
+                required
+                aria-label="Search a business"
+            >
+            <button type="submit" class="btn-primary gbp-search-btn">
+                <span class="gbp-search-btn-label">Search</span>
+                <span class="gbp-search-btn-spinner" aria-hidden="true"></span>
+            </button>
+        </form>
+
+        <div class="gbp-status" id="gbpStatus" role="status" aria-live="polite"></div>
+
+        <div class="gbp-results" id="gbpResults" aria-live="polite"></div>
+
+    </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/gbp.js') }}"></script>
+{% endblock %}

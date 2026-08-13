@@ -1,0 +1,412 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if profile %}{{ profile.name }} — GBP Report
+    {% else %}GBP Report &amp; SEO — {{ brand }}{% endif %}
+{% endblock %}
+
+{% block content %}
+
+{# ----- Error state (no data) ----- #}
+{% if error %}
+<section class="gbp-page">
+    <div class="gbp-inner">
+        <div class="gbp-error-card" role="alert">
+            <div class="gbp-error-icon" aria-hidden="true">⚠️</div>
+            <h2 class="gbp-error-title">
+                {% if error == 'missing_id' %}No business selected
+                {% elif error == 'not_found' %}Business not found
+                {% else %}Something went wrong
+                {% endif %}
+            </h2>
+            <p class="gbp-error-body">{{ error_message }}</p>
+            <a class="btn-primary" href="{{ url_for('gbp.search_page') }}">← Start a new search</a>
+        </div>
+    </div>
+</section>
+{% else %}
+
+{# ----- Loading state (rendered first; hidden once data is in) ----- #}
+<section class="gbp-loading" id="gbpLoading">
+    <div class="gbp-inner">
+        <h2 class="gbp-loading-title">Analyzing Google Business Profile…</h2>
+        <ol class="gbp-loading-steps" id="gbpLoadingSteps">
+            <li data-step="1" class="is-done">
+                <span class="gbp-loading-bullet">✓</span>
+                <span class="gbp-loading-text">Business profile retrieved</span>
+            </li>
+            <li data-step="2" class="is-done">
+                <span class="gbp-loading-bullet">✓</span>
+                <span class="gbp-loading-text">Profile data prepared</span>
+            </li>
+            <li data-step="3" class="is-active">
+                <span class="gbp-loading-bullet">⏳</span>
+                <span class="gbp-loading-text">Running SEO analysis</span>
+            </li>
+            <li data-step="4">
+                <span class="gbp-loading-bullet">⏳</span>
+                <span class="gbp-loading-text">Comparing against competitor profiles</span>
+            </li>
+        </ol>
+        <p class="gbp-loading-foot">This usually takes a few seconds.</p>
+    </div>
+</section>
+
+{# ----- The actual report ----- #}
+<article class="gbp-report" id="gbpReport" hidden>
+
+    <header class="gbp-report-head">
+        <div class="gbp-report-head-inner">
+            <a class="gbp-back" href="{{ url_for('gbp.search_page') }}">← New search</a>
+            <span class="gbp-eyebrow">GBP Report &amp; SEO</span>
+            <h1 class="gbp-report-title">{{ profile.name }}</h1>
+            <p class="gbp-report-sub">
+                {{ analysis['categories']['current'] }}
+                {% if profile.address %} · {{ profile.address }}{% endif %}
+            </p>
+        </div>
+    </header>
+
+    {# ----- Overall score ----- #}
+    <section class="gbp-section">
+        <div class="gbp-grid-2">
+            <div class="gbp-card gbp-score-card">
+                <div class="gbp-eyebrow">Overall Score</div>
+                <div class="gbp-score-ring">
+                    <svg viewBox="0 0 120 120" aria-hidden="true">
+                        <circle class="gbp-score-track" cx="60" cy="60" r="52" />
+                        <circle
+                            class="gbp-score-fill"
+                            cx="60" cy="60" r="52"
+                            stroke-dasharray="{{ (analysis['overall_score'] / 100 * 326.7) | round(1) }} 326.7"
+                        />
+                    </svg>
+                    <div class="gbp-score-text">
+                        <div class="gbp-score-value">{{ analysis['overall_score'] }}</div>
+                        <div class="gbp-score-out">/ 100</div>
+                    </div>
+                </div>
+                <div class="gbp-score-label">GBP Profile Score</div>
+            </div>
+
+            <div class="gbp-card gbp-completeness-card">
+                <div class="gbp-eyebrow">Profile Completeness</div>
+                <div class="gbp-completeness-row">
+                    <div class="gbp-completeness-value">{{ analysis['profile_completeness']['score'] }}%</div>
+                    <div class="gbp-completeness-bar">
+                        <div class="gbp-completeness-fill"
+                             style="width: {{ analysis['profile_completeness']['score'] }}%"></div>
+                    </div>
+                </div>
+                <ul class="gbp-check-list">
+                    {% for f in analysis['profile_completeness']['fields'] %}
+                    <li class="{% if f.ok %}is-ok{% else %}is-missing{% endif %}">
+                        <span aria-hidden="true">{% if f.ok %}✓{% else %}○{% endif %}</span>
+                        {{ f.label }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    {# ----- Strengths & Weaknesses ----- #}
+    <section class="gbp-section">
+        <div class="gbp-grid-2">
+            <div class="gbp-card">
+                <h3 class="gbp-card-title">✓ Strengths</h3>
+                <ul class="gbp-bullets gbp-bullets-good">
+                    {% for s in analysis['strengths'] %}<li>{{ s }}</li>{% endfor %}
+                </ul>
+            </div>
+            <div class="gbp-card">
+                <h3 class="gbp-card-title">⚠ Weaknesses</h3>
+                <ul class="gbp-bullets gbp-bullets-bad">
+                    {% for w in analysis['weaknesses'] %}<li>{{ w }}</li>{% endfor %}
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    {# ----- Top 5 actions ----- #}
+    <section class="gbp-section">
+        <div class="gbp-card gbp-top-actions">
+            <div class="gbp-card-head">
+                <h3 class="gbp-card-title">⭐ Top 5 Actions to Improve Your GBP</h3>
+                <span class="gbp-card-sub">Highest-impact, easiest wins first</span>
+            </div>
+            <ol class="gbp-top-actions-list">
+                {% for t in analysis['top_5_actions'] %}
+                <li>
+                    <div class="gbp-top-actions-num">{{ t.index }}</div>
+                    <div class="gbp-top-actions-body">
+                        <div class="gbp-top-actions-title">{{ t['recommended_action'] }}</div>
+                        <div class="gbp-top-actions-meta">
+                            <span class="gbp-pill gbp-pill-{{ t.priority|lower }}">{{ t.priority }}</span>
+                            <span class="gbp-pill gbp-pill-effort">{{ t.effort }}</span>
+                        </div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ol>
+        </div>
+    </section>
+
+    {# ----- Businesses above you ----- #}
+    {% if competitive.businesses_above > 0 %}
+    <section class="gbp-section">
+        <div class="gbp-card gbp-above-card">
+            <h3 class="gbp-card-title">
+                {{ competitive.businesses_above }} business{{ 'es have' if competitive.businesses_above != 1 else ' has' }}
+                a stronger profile than yours
+            </h3>
+            <p class="gbp-card-sub">Here are the biggest gaps we found:</p>
+            <ol class="gbp-gap-list">
+                {% for g in competitive['gaps'] %}
+                <li>{{ g['gap'] }}</li>
+                {% endfor %}
+            </ol>
+        </div>
+    </section>
+    {% endif %}
+
+    {# ----- Competitive Profile Position ----- #}
+    <section class="gbp-section">
+        <div class="gbp-card gbp-competitor-card">
+            <div class="gbp-card-head">
+                <h3 class="gbp-card-title">Competitive Profile Position</h3>
+                <span class="gbp-card-sub">
+                    Competitive Profile Score — an estimated profile-strength comparison,
+                    not Google's actual local ranking.
+                </span>
+            </div>
+            <div class="gbp-comp-summary">
+                <div>
+                    <div class="gbp-eyebrow">Your Score</div>
+                    <div class="gbp-comp-score">{{ competitive.your_score }}</div>
+                </div>
+                <div>
+                    <div class="gbp-eyebrow">Businesses Above You</div>
+                    <div class="gbp-comp-score-sub">{{ competitive.businesses_above }}</div>
+                </div>
+                <div>
+                    <div class="gbp-eyebrow">Businesses Below You</div>
+                    <div class="gbp-comp-score-sub">{{ competitive.businesses_below }}</div>
+                </div>
+            </div>
+            <div class="gbp-table-wrap">
+                <table class="gbp-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Business</th>
+                            <th>City</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in competitive.rows %}
+                        <tr class="{% if r.is_target %}is-target{% endif %}">
+                            <td>{{ r.rank }}</td>
+                            <td>
+                                {{ r.name }}
+                                {% if r.is_target %}<span class="gbp-you-pill">You</span>{% endif %}
+                            </td>
+                            <td>{{ r.city }}</td>
+                            <td>{{ r.score }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <p class="gbp-disclaimer">
+                Competitive Profile Score is an estimated score derived from publicly
+                visible Google Business Profile data. It is not the same as Google's
+                actual local search ranking.
+            </p>
+        </div>
+    </section>
+
+    {# ----- Services, Categories, Reviews, Photos, Consistency, Recommendations ----- #}
+    <section class="gbp-section">
+        <div class="gbp-grid-2">
+            <div class="gbp-card">
+                <h3 class="gbp-card-title">🧾 Services</h3>
+                {% if analysis['services']['existing'] %}
+                <div class="gbp-eyebrow">Existing services</div>
+                <ul class="gbp-pill-list">
+                    {% for s in analysis['services']['existing'] %}
+                    <li class="gbp-pill gbp-pill-soft">{{ s }}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="gbp-empty">No services listed on this profile.</p>
+                {% endif %}
+
+                {% if analysis['services']['missing'] %}
+                <div class="gbp-eyebrow gbp-mt">Missing relevant services</div>
+                <ul class="gbp-pill-list">
+                    {% for s in analysis['services']['missing'] %}
+                    <li class="gbp-pill gbp-pill-warn">{{ s }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+
+                {% if analysis['services']['suggested'] %}
+                <div class="gbp-eyebrow gbp-mt">Suggested services</div>
+                <ul class="gbp-pill-list">
+                    {% for s in analysis['services']['suggested'] %}
+                    <li class="gbp-pill gbp-pill-accent">{{ s }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+
+            <div class="gbp-card">
+                <h3 class="gbp-card-title">🏷 Categories</h3>
+                <div class="gbp-eyebrow">Current category</div>
+                <p class="gbp-line">
+                    {{ analysis['categories']['current'] }}
+                    {% if analysis['categories']['current_id'] %}
+                    <span class="gbp-mono">({{ analysis['categories']['current_id'] }})</span>
+                    {% endif %}
+                </p>
+                {% if analysis['categories']['suggested'] %}
+                <div class="gbp-eyebrow gbp-mt">Suggested categories</div>
+                <ul class="gbp-pill-list">
+                    {% for c in analysis['categories']['suggested'] %}
+                    <li class="gbp-pill gbp-pill-accent">{{ c }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% if analysis['categories']['verification_warning'] %}
+                <p class="gbp-verify">⚠ {{ analysis['categories']['verification_warning'] }} — confirm any new category exists in the Google Business Profile category picker before adding.</p>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <section class="gbp-section">
+        <div class="gbp-grid-2">
+            <div class="gbp-card">
+                <h3 class="gbp-card-title">⭐ Reviews</h3>
+                <p class="gbp-line">
+                    <strong>{{ analysis['reviews']['rating'] or '—' }}★</strong>
+                    <span class="gbp-soft">across {{ analysis['reviews']['total'] }} reviews</span>
+                </p>
+                <ul class="gbp-bullets">
+                    {% for s in analysis['reviews']['signals'] %}<li>{{ s }}</li>{% endfor %}
+                </ul>
+                {% if analysis['reviews']['sample'] %}
+                <div class="gbp-eyebrow gbp-mt">Recent reviews</div>
+                <ul class="gbp-review-list">
+                    {% for r in analysis['reviews']['sample'] %}
+                    <li>
+                        <div class="gbp-review-head">
+                            <strong>{{ r.author }}</strong>
+                            <span class="gbp-review-rating">{{ r.rating or '—' }}★</span>
+                            <span class="gbp-soft">{{ r.relative_time }}</span>
+                        </div>
+                        <p class="gbp-review-text">{{ r.text }}</p>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+
+            <div class="gbp-card">
+                <h3 class="gbp-card-title">📷 Photos</h3>
+                <p class="gbp-line">
+                    <strong>{{ analysis['photos']['count'] }}</strong>
+                    <span class="gbp-soft">photos on profile</span>
+                </p>
+                <ul class="gbp-bullets">
+                    {% for s in analysis['photos']['signals'] %}<li>{{ s }}</li>{% endfor %}
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="gbp-section">
+        <div class="gbp-card">
+            <h3 class="gbp-card-title">🔗 Website / Profile Consistency</h3>
+            <ul class="gbp-bullets">
+                {% for c in analysis['consistency'] %}<li>{{ c|safe }}</li>{% endfor %}
+            </ul>
+        </div>
+    </section>
+
+    {# ----- Full recommendations ----- #}
+    <section class="gbp-section">
+        <div class="gbp-card">
+            <h3 class="gbp-card-title">📋 Recommendations</h3>
+            <div class="gbp-recs">
+                {% for r in analysis['recommendations'] %}
+                <article class="gbp-rec">
+                    <header class="gbp-rec-head">
+                        <h4 class="gbp-rec-title">{{ r.issue }}</h4>
+                        <div class="gbp-rec-tags">
+                            <span class="gbp-pill gbp-pill-{{ r.priority|lower }}">{{ r.priority }}</span>
+                            <span class="gbp-pill gbp-pill-effort">{{ r.effort }}</span>
+                        </div>
+                    </header>
+                    <dl class="gbp-rec-body">
+                        <dt>Why it matters</dt>
+                        <dd>{{ r.why_it_matters }}</dd>
+                        <dt>Recommended action</dt>
+                        <dd>{{ r.recommended_action }}</dd>
+                        {% if r.example %}
+                        <dt>Example</dt>
+                        <dd><em>{{ r.example }}</em></dd>
+                        {% endif %}
+                    </dl>
+                </article>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <div class="gbp-foot-cta">
+        <a class="btn-primary" href="{{ url_for('gbp.search_page') }}">Analyze another business</a>
+        <a class="btn-ghost" href="{{ url_for('main.contact') }}">Need help fixing this? →</a>
+    </div>
+
+</article>
+
+<script>
+    // Step through the loading state, then reveal the report.
+    (function () {
+        var steps = document.querySelectorAll('#gbpLoadingSteps li');
+        var loading = document.getElementById('gbpLoading');
+        var report = document.getElementById('gbpReport');
+        if (!loading || !report) return;
+        var order = [3, 4];
+        var i = 0;
+        function next() {
+            if (i >= order.length) {
+                loading.style.display = 'none';
+                report.hidden = false;
+                return;
+            }
+            var step = order[i++];
+            steps.forEach(function (li) {
+                var n = parseInt(li.getAttribute('data-step'), 10);
+                if (n < step) {
+                    li.classList.add('is-done');
+                    li.classList.remove('is-active');
+                } else if (n === step) {
+                    li.classList.add('is-active');
+                    li.classList.remove('is-done');
+                } else {
+                    li.classList.remove('is-active', 'is-done');
+                }
+            });
+            setTimeout(next, 700);
+        }
+        setTimeout(next, 500);
+    })();
+</script>
+
+{% endif %}
+
+{% endblock %}

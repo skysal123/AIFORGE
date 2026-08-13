@@ -40,7 +40,6 @@
 
 """Application factory for AIForge Technologies."""
 from datetime import datetime
-import socket
 
 from flask import Flask
 
@@ -50,9 +49,6 @@ from .extensions import csrf, db, mail
 
 def create_app(config_object=None):
     """Build and return a configured Flask app instance."""
-    # Set a default socket timeout (10s) to prevent SMTP connection hangs on cloud hosts
-    socket.setdefaulttimeout(10.0)
-
     app = Flask(
         __name__,
         static_folder="static",
@@ -73,6 +69,12 @@ def create_app(config_object=None):
     # Register blueprints
     from .blueprints.main import main_bp
     app.register_blueprint(main_bp)
+
+    # GBP Report & SEO feature (re-uses the existing SEO_analyser / gbp_lookup
+    # modules; routes are mounted under /gbp-report to keep the existing
+    # blueprint architecture intact).
+    from .blueprints.gbp import gbp_bp
+    app.register_blueprint(gbp_bp)
 
     # Auto-create tables in dev (swap for migrations before production)
     with app.app_context():

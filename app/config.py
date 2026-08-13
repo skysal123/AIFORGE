@@ -101,6 +101,13 @@ class BaseConfig:
     BRAND_NAME = "AIForge Technologies"
     BRAND_TAGLINE = "From ideas to intelligent products."
 
+    # ---- GBP Report & SEO persistence ----
+    # Where every search / report result is journaled to disk.
+    # Override with the GBP_LOG_DIR env var. The actual resolution is
+    # done lazily inside the routes module so runtime overrides take
+    # effect after first use.
+    GBP_LOG_DIR = Path(os.environ.get("GBP_LOG_DIR", BASE_DIR / "output" / "gbp"))
+
 
 class DevelopmentConfig(BaseConfig):
     DEBUG = True
