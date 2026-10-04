@@ -460,6 +460,48 @@ def _write_faq_jsonld_file(faq_jsonld: dict) -> None:
     except Exception as exc:  # noqa: BLE001
         log.warning("Could not write %s: %s", FAQ_JSONLD_FILE, exc)
 # --------------------------------------------------------------------- #
+# High-level: pick a business and run the full GBP -> AEO pipeline        #
+# --------------------------------------------------------------------- #
+
+
+def analyze_aeo(place_id: str, save_to_disk: bool = True) -> dict:
+    """Run the full pipeline for AEO analysis.
+
+    Returns a dict with the normalized profile and the AEO scoring payload.
+    """
+    profile, error = get_profile(place_id)
+    if profile is None:
+        raise LookupError(error or "profile_not_found")
+
+    gbp_json_path: Path | None = None
+    if save_to_disk:
+        try:
+            gbp_json_path = save_gbp_json(profile)
+        except Exception as exc:  # noqa: BLE001
+            log.warning("Could not save GBP JSON: %s", exc)
+
+    import AEO_analyser
+
+    analysis = AEO_analyser.analyze_aeo(profile) or AEO_analyser.local_aeo_score(profile)
+    faq_jsonld = build_faq_jsonld(profile, analysis)
+
+    _write_faq_jsonld_file(faq_jsonld)
+    _write_analysis_file(
+        analysis,
+        profile,
+        faq_jsonld=faq_jsonld,
+    )
+
+    return {
+        "profile": profile,
+        "analysis": analysis,
+        "faq_jsonld": faq_jsonld,
+        "gbp_json_path": str(gbp_json_path) if gbp_json_path else "",
+        "analysis_path": str(ANALYSIS_FILE),
+    }
+
+
+# --------------------------------------------------------------------- #
 # High-level: pick a business and run the full GBP -> SEO pipeline       #
 # --------------------------------------------------------------------- #
 
