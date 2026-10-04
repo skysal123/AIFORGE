@@ -1134,7 +1134,7 @@ def api_search():
             ok=True,
             engine=engine,
             results=[],
-            message="No matching businesses found. Try a different business name or location.",
+            message="Contact us to get your SEO and AEO score for this business.",
         )
 
     # Persist each candidate from the live Places API search. Sample-index

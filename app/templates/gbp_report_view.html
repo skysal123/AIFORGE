@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
 {% block title %}
-    {% if profile %}{{ profile.name }} — GBP Report
-    {% else %}GBP Report &amp; SEO — {{ brand }}{% endif %}
+    {% if profile %}{{ profile.name }} — GBP SEO &amp; AEO Audit
+    {% else %}GBP SEO &amp; AEO Audit — {{ brand }}{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -58,7 +58,7 @@
     <header class="gbp-report-head">
         <div class="gbp-report-head-inner">
             <a class="gbp-back" href="{{ url_for('gbp.search_page') }}">← New search</a>
-            <span class="gbp-eyebrow">GBP Report &amp; SEO</span>
+            <span class="gbp-eyebrow">GBP SEO &amp; AEO Audit</span>
             <h1 class="gbp-report-title">{{ profile.name }}</h1>
             <p class="gbp-report-sub">
                 {{ analysis['categories']['current'] }}
