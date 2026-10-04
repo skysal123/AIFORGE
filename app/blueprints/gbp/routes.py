@@ -1248,11 +1248,92 @@ def report():
 # --------------------------------------------------------------------- #
 
 
+# @gbp_bp.route("/api/select", methods=["POST"])
+# @csrf.exempt
+# def api_select():
+#     """Run the full GBP -> SEO pipeline for a chosen place_id and return
+#     the normalized analysis as JSON.
+
+#     Frontend calls this instead of navigating to ``/report``, so the
+#     search/select UI on ``/gbp-report/`` can render the report on the
+#     same page.
+#     """
+#     payload = request.get_json(silent=True) or {}
+#     place_id = (payload.get("place_id") or "").strip()
+#     if not place_id:
+#         return jsonify(
+#             ok=False,
+#             error="missing_place_id",
+#             message="Please pick a business from the search results.",
+#         ), 400
+
+#     from app.services import gbp_seo_service
+
+#     try:
+#         result = gbp_seo_service.select_and_analyze(place_id)
+#     except LookupError as exc:
+#         key = str(exc)
+#         if key == "api_failure":
+#             return jsonify(
+#                 ok=False,
+#                 error="api_failure",
+#                 message=(
+#                     "We couldn't fetch the latest data for that business from "
+#                     "Google Places. Please try again in a moment."
+#                 ),
+#             ), 502
+#         if key == "not_configured":
+#             return jsonify(
+#                 ok=False,
+#                 error="not_configured",
+#                 message=(
+#                     "Google Places API is not configured on this server. "
+#                     "Set GOOGLE_PLACES_API_KEY in your .env file."
+#                 ),
+#             ), 503
+#         return jsonify(
+#             ok=False,
+#             error="not_found",
+#             message="We couldn't find that business. Try a new search.",
+#         ), 404
+#     except Exception as exc:  # noqa: BLE001
+#         log.exception("GBP select failed for %s: %s", place_id, exc)
+#         return jsonify(
+#             ok=False,
+#             error="analysis_failed",
+#             message=(
+#                 "Business data was retrieved, but SEO analysis could not "
+#                 "be generated. Please try again."
+#             ),
+#         ), 500
+
+#     profile = result["profile"]
+#     return jsonify(
+#         ok=True,
+#         place_id=place_id,
+#         profile={
+#             "name": profile.get("name"),
+#             "address": profile.get("address"),
+#             "phone": profile.get("phone"),
+#             "website": profile.get("website"),
+#             "rating": profile.get("rating"),
+#             "total_reviews": profile.get("total_reviews"),
+#             "photo_count": profile.get("photo_count"),
+#             "primary_category": profile.get("primary_category_display")
+#             or profile.get("primary_category"),
+#         },
+#         analysis=result["analysis"],
+#         competitive=result["competitive"],
+#         paths={
+#             "gbp_json": result["gbp_json_path"],
+#             "analysis": result["analysis_path"],
+#         },
+#     )
+
 @gbp_bp.route("/api/select", methods=["POST"])
 @csrf.exempt
 def api_select():
-    """Run the full GBP -> SEO pipeline for a chosen place_id and return
-    the normalized analysis as JSON.
+    """Run the full GBP -> SEO/AEO pipeline for a chosen place_id.
 
     Frontend calls this instead of navigating to ``/report``, so the
     search/select UI on ``/gbp-report/`` can render the report on the
@@ -1260,6 +1341,8 @@ def api_select():
     """
     payload = request.get_json(silent=True) or {}
     place_id = (payload.get("place_id") or "").strip()
+    analysis_type = payload.get("analysis_type", "seo").lower()
+
     if not place_id:
         return jsonify(
             ok=False,
@@ -1270,7 +1353,13 @@ def api_select():
     from app.services import gbp_seo_service
 
     try:
-        result = gbp_seo_service.select_and_analyze(place_id)
+        if analysis_type == "aeo":
+            # AEO Pipeline
+            result = gbp_seo_service.analyze_aeo(place_id)
+        else:
+            # Standard SEO Pipeline
+            result = gbp_seo_service.select_and_analyze(place_id)
+
     except LookupError as exc:
         key = str(exc)
         if key == "api_failure":
@@ -1296,18 +1385,30 @@ def api_select():
             error="not_found",
             message="We couldn't find that business. Try a new search.",
         ), 404
-    except Exception as exc:  # noqa: BLE001
-        log.exception("GBP select failed for %s: %s", place_id, exc)
+    except Exception as exc:
+        log.exception("GBP selection failed for %s: %s", place_id, exc)
         return jsonify(
             ok=False,
             error="analysis_failed",
             message=(
-                "Business data was retrieved, but SEO analysis could not "
+                "Business data was retrieved, but analysis could not "
                 "be generated. Please try again."
             ),
         ), 500
 
     profile = result["profile"]
+
+    if analysis_type == "aeo":
+        # AEO returns a simpler payload to the frontend
+        return jsonify(
+            ok=True,
+            place_id=place_id,
+            profile=profile,
+            analysis=result["analysis"],
+            analysis_type="aeo"
+        )
+
+    # Standard SEO return payload
     return jsonify(
         ok=True,
         place_id=place_id,
@@ -1323,13 +1424,12 @@ def api_select():
             or profile.get("primary_category"),
         },
         analysis=result["analysis"],
-        competitive=result["competitive"],
+        competitive=result.get("competitive", {}),
         paths={
-            "gbp_json": result["gbp_json_path"],
-            "analysis": result["analysis_path"],
+            "gbp_json": result.get("gbp_json_path", ""),
+            "analysis": result.get("analysis_path", ""),
         },
     )
-
 
 @gbp_bp.route("/api/analysis", methods=["GET"])
 def api_analysis():

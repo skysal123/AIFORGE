@@ -69,10 +69,16 @@
                 address +
                 website +
                 photoLine +
-                '<button type="button" class="btn-primary gbp-result-cta" ' +
-                  'data-place-id="' + escapeHTML(item.place_id) + '">' +
-                  'Analyze this business →' +
-                '</button>';
+                '<div class="gbp-result-actions" style="display: flex; gap: 10px; margin-top: 15px;">' +
+                    '<button type="button" class="btn-primary gbp-result-cta gbp-result-cta-seo" ' +
+                      'data-place-id="' + escapeHTML(item.place_id) + '">' +
+                      'Analyse SEO' +
+                    '</button>' +
+                    '<button type="button" class="btn-ghost gbp-result-cta gbp-result-cta-aeo" ' +
+                      'data-place-id="' + escapeHTML(item.place_id) + '">' +
+                      'Analyse AEO' +
+                    '</button>' +
+                '</div>';
             wrap.appendChild(card);
         });
         results.appendChild(wrap);
@@ -82,14 +88,147 @@
             btn.addEventListener("click", function () {
                 var id = btn.getAttribute("data-place-id");
                 if (!id) return;
-                runSelection(id, btn);
+                if (btn.classList.contains("gbp-result-cta-seo")) {
+                    runSelection(id, btn);
+                } else if (btn.classList.contains("gbp-result-cta-aeo")) {
+                    handleAEOSelection(id, btn);
+                }
             });
         });
     }
 
-    function runSelection(placeId, btn) {
-        // Disable all cards so a second click can't fire while running.
+    function renderAEOReport(payload) {
+        var profile = payload.profile || {};
+        var analysis = payload.analysis || {};
+        var overallScore = analysis.overall_score || 0;
+        var breakdown = analysis.breakdown || {};
+        var recs = analysis.recommendations || [];
+
+        // 1. Overall Score Ring (Reuse SEO style)
+        var scoreDash = (overallScore / 100 * 326.7).toFixed(1) + " 326.7";
+        var scoreHtml = '<div class="gbp-card gbp-score-card">' +
+            '<div class="gbp-eyebrow">AEO Answerability Score</div>' +
+            '<div class="gbp-score-ring"><svg viewBox="0 0 120 120" aria-hidden="true">' +
+                '<circle class="gbp-score-track" cx="60" cy="60" r="52" />' +
+                '<circle class="gbp-score-fill" cx="60" cy="60" r="52" stroke-dasharray="' + scoreDash + '" />' +
+            '</svg><div class="gbp-score-text"><div class="gbp-score-value">' + overallScore + '</div>' +
+            '<div class="gbp-score-out">/ 100</div></div></div>' +
+            '<div class="gbp-score-label">AEO Readiness</div></div>';
+
+        // 2. Rubric Breakdown Grid
+        var breakdownHtml = '<div class="gbp-grid-2">';
+        for (var cat in breakdown) {
+            var item = breakdown[cat];
+            var pct = (item.score / item.max * 100).toFixed(0);
+            breakdownHtml += '<div class="gbp-card">' +
+                '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">' +
+                    '<strong style="font-size: 14px;">' + escapeHTML(cat) + '</strong>' +
+                    '<span class="gbp-mono">' + item.score + ' / ' + item.max + '</span>' +
+                '</div>' +
+                '<div class="gbp-completeness-bar" style="height: 8px; background: #eee; border-radius: 4px; overflow: hidden;">' +
+                    '<div class="gbp-completeness-fill" style="width:' + pct + '%; background: var(--gbp-accent, #4a90e2);"></div>' +
+                '</div>' +
+                '<p class="gbp-soft" style="font-size: 12px; margin-top: 8px;">' + escapeHTML(item.justification) + '</p>' +
+            '</div>';
+        }
+        breakdownHtml += '</div>';
+
+        // 3. Recommendations
+        var recsHtml = (recs.length ? '<div class="gbp-recs">' + recs.map(function (r) {
+            return '<article class="gbp-rec"><header class="gbp-rec-head">' +
+                '<h4 class="gbp-rec-title">' + escapeHTML(r.issue) + '</h4>' +
+                '<div class="gbp-rec-tags">' +
+                    '<span class="gbp-pill gbp-pill-' + escapeHTML(String(r.category || "").toLowerCase()) + '">' + escapeHTML(r.category || "AEO") + '</span>' +
+                    '<span class="gbp-pill gbp-pill-' + escapeHTML(String(r.priority || "").toLowerCase()) + '">' + escapeHTML(r.priority || "") + '</span>' +
+                    '<span class="gbp-pill gbp-pill-effort">' + escapeHTML(r.effort || "") + '</span>' +
+                '</div></header>' +
+                '<dl class="gbp-rec-body">' +
+                    '<dt>Recommended action</dt><dd>' + escapeHTML(r.recommended_action) + '</dd>' +
+                '</dl></article>';
+        }).join("") + '</div>' : '<p class="gbp-empty">No specific AEO recommendations at this time.</p>');
+
+        var html =
+            '<article class="gbp-report" id="gbpReport">' +
+                '<header class="gbp-report-head">' +
+                    '<div class="gbp-report-head-inner">' +
+                        '<a class="gbp-back" href="/gbp-report/">← New search</a>' +
+                        '<span class="gbp-eyebrow">GBP Report &amp; AEO</span>' +
+                        '<h1 class="gbp-report-title">' + escapeHTML(profile.name) + '</h1>' +
+                        '<p class="gbp-report-sub">' +
+                            escapeHTML(profile.primary_category || "—") +
+                            (profile.address ? " · " + escapeHTML(profile.address) : "") +
+                        '</p>' +
+                    '</div>' +
+                '</header>' +
+                '<section class="gbp-section">' + scoreHtml + '</section>' +
+                '<section class="gbp-section">' +
+                    '<div class="gbp-card-head" style="margin-bottom: 20px;">' +
+                        '<h3 class="gbp-card-title">AEO Scoring Breakdown</h3>' +
+                        '<span class="gbp-card-sub">Evaluation based on AI Answerability rubric</span>' +
+                    '</div>' +
+                    breakdownHtml +
+                '</section>' +
+                '<section class="gbp-section">' +
+                    '<div class="gbp-card">' +
+                        '<h3 class="gbp-card-title">📋 AEO Recommendations</h3>' +
+                        recsHtml +
+                    '</div></section>' +
+                '<div class="gbp-foot-cta">' +
+                    '<a class="btn-primary" href="/gbp-report/">Analyze another business</a>' +
+                '</div>' +
+            '</article>';
+
+        results.innerHTML = html;
+        results.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function handleAEOSelection(placeId, btn) {
         results.querySelectorAll(".gbp-result-cta").forEach(function (b) {
+            b.disabled = true;
+            b.classList.add("is-loading");
+        });
+        showStatus("info", "Analyzing AEO capabilities...");
+        setLoading(true);
+
+        fetch("/gbp-report/api/select", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            },
+            body: JSON.stringify({ place_id: placeId, analysis_type: "aeo" }),
+        })
+            .then(function (r) {
+                return r.json().then(function (body) {
+                    return { ok: r.ok, status: r.status, body: body };
+                });
+            })
+            .then(function (resp) {
+                setLoading(false);
+                if (!resp.ok) {
+                    results.querySelectorAll(".gbp-result-cta").forEach(function (b) {
+                        b.disabled = false;
+                        b.classList.remove("is-loading");
+                    });
+                    showStatus("error", (resp.body && resp.body.message) || "We couldn't run the AEO analysis. Please try again.");
+                    return;
+                }
+                showStatus("ok", "AEO Report generated successfully.");
+                renderAEOReport(resp.body);
+            })
+            .catch(function (err) {
+                setLoading(false);
+                results.querySelectorAll(".gbp-result-cta").forEach(function (b) {
+                    b.disabled = false;
+                    b.classList.remove("is-loading");
+                });
+                showStatus("error", err.message || "We couldn't run the AEO analysis. Please try again.");
+            });
+    }
+
+    function runSelection(placeId, btn) {
+        // Disable SEO buttons so a second click can't fire while running.
+        results.querySelectorAll(".gbp-result-cta-seo").forEach(function (b) {
             b.disabled = true;
             b.classList.add("is-loading");
         });
@@ -159,7 +298,7 @@
                 '</div></section>' +
                 strengthsWeaknessesCard(analysis) +
                 topActionsCard(analysis) +
-                competitiveCard(competitive) +
+                // competitiveCard(competitive) + // Hidden from frontend as per request
                 servicesCategoriesCard(analysis) +
                 reviewsPhotosCard(analysis) +
                 consistencyCard(analysis) +

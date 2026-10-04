@@ -174,12 +174,11 @@ def select_and_analyze(place_id: str, save_to_disk: bool = True) -> dict:
     }
 
 
-def _write_analysis_file(analysis: dict, profile: dict) -> None:
-    """Write ``google_profile_analysis.json`` in the same location the CLI
-    script does. We persist the *normalized* analysis (the same shape the
-    UI renders) so reloading the page from disk shows the same report."""
+def _write_analysis_file(analysis: dict, profile: dict, filename: str = "google_profile_analysis.json") -> None:
+    """Write analysis to a JSON file."""
+    out_path = BASE_DIR / filename
     try:
-        with open(ANALYSIS_FILE, "w", encoding="utf-8") as fh:
+        with open(out_path, "w", encoding="utf-8") as fh:
             json.dump(
                 {
                     "profile": {k: v for k, v in profile.items() if k != "raw"},
@@ -190,7 +189,35 @@ def _write_analysis_file(analysis: dict, profile: dict) -> None:
                 ensure_ascii=False,
             )
     except Exception as exc:  # noqa: BLE001
-        log.warning("Could not write %s: %s", ANALYSIS_FILE, exc)
+        log.warning("Could not write %s: %s", out_path, exc)
+
+def analyze_aeo(place_id: str) -> dict:
+    """Run the full AEO analysis pipeline."""
+    profile, error = get_profile(place_id)
+    if profile is None:
+        raise LookupError(error or "profile_not_found")
+
+    analysis = None
+    try:
+        import AEO_analyser
+        analysis = AEO_analyser.analyze_aeo(profile)
+    except Exception as exc:
+        log.warning("AEO Gemini analysis failed, falling back to local: %s", exc)
+
+    if analysis is None:
+        try:
+            import AEO_analyser
+            analysis = AEO_analyser.local_aeo_score(profile)
+        except Exception as exc:
+            log.error("AEO local score failed: %s", exc)
+            raise RuntimeError("AEO analysis completely failed")
+
+    _write_analysis_file(analysis, profile, "aeo_profile_analysis.json")
+
+    return {
+        "profile": profile,
+        "analysis": analysis,
+    }
 
 
 # --------------------------------------------------------------------- #
