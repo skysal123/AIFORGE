@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 
 BASE_DIR = Path(__file__).resolve().parents[2]  # C:\AIForge Technologies
 ANALYSIS_FILE = BASE_DIR / "google_profile_analysis.json"
-
+FAQ_JSONLD_FILE = BASE_DIR / "faq_jsonld.json"
 
 # --------------------------------------------------------------------- #
 # Thin re-exports of the blueprint's existing helpers                    #
@@ -64,6 +64,326 @@ def _competitive_summary(profile: dict) -> dict:
 
     return gbp_routes._competitive_summary(profile)  # noqa: SLF001
 
+# --------------------------------------------------------------------- #
+# FAQPage JSON-LD generator                                             #
+# --------------------------------------------------------------------- #
+
+
+def build_faq_jsonld(profile: dict, analysis: dict | None = None) -> dict:
+    """Build deterministic FAQPage JSON-LD from GBP profile + SEO analysis.
+
+    No external API or LLM call is made here. The questions and answers are
+    generated entirely from the GBP information that has already been fetched.
+
+    Returns a dictionary ready to:
+      - serialize as JSON
+      - embed inside <script type="application/ld+json">
+      - save as faq_jsonld.json
+    """
+    analysis = analysis or {}
+
+    questions: list[dict] = []
+
+    def add_question(question: str, answer: str | None) -> None:
+        question = _clean_text(question)
+        answer = _clean_text(answer or "")
+
+        if not question or not answer:
+            return
+
+        # Prevent duplicate questions.
+        if any(item["name"].lower() == question.lower() for item in questions):
+            return
+
+        questions.append(
+            {
+                "@type": "Question",
+                "name": question,
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": answer,
+                },
+            }
+        )
+
+    name = _clean_text(profile.get("name") or "This business")
+    address = _clean_text(profile.get("address"))
+    phone = _clean_text(profile.get("phone"))
+    website = _clean_text(profile.get("website"))
+
+    rating = profile.get("rating")
+    total_reviews = profile.get("total_reviews")
+
+    categories = profile.get("categories") or []
+
+    primary_category = (
+        profile.get("primary_category_display")
+        or profile.get("primary_category")
+    )
+
+    hours = profile.get("hours") or []
+    reviews = profile.get("reviews") or []
+
+    # --------------------------------------------------------------- #
+    # 1. Hours
+    # --------------------------------------------------------------- #
+
+    hours_text = _format_faq_hours(hours)
+
+    if hours_text:
+        add_question(
+            "What are your hours?",
+            f"{name}'s business hours are: {hours_text}",
+        )
+
+    # --------------------------------------------------------------- #
+    # 2. Location
+    # --------------------------------------------------------------- #
+
+    if address:
+        add_question(
+            "Where are you located?",
+            f"{name} is located at {address}.",
+        )
+
+    # --------------------------------------------------------------- #
+    # 3. Contact
+    # --------------------------------------------------------------- #
+
+    contact_parts = []
+
+    if phone:
+        contact_parts.append(f"phone: {phone}")
+
+    if website:
+        contact_parts.append(f"website: {website}")
+
+    if contact_parts:
+        add_question(
+            "How can I contact you?",
+            f"You can contact {name} using {', '.join(contact_parts)}.",
+        )
+
+    # --------------------------------------------------------------- #
+    # 4. Primary category / service
+    # --------------------------------------------------------------- #
+
+    if primary_category:
+        add_question(
+            f"What does {name} offer?",
+            f"{name} is listed as a {primary_category}.",
+        )
+
+    # --------------------------------------------------------------- #
+    # 5. Categories / services
+    # --------------------------------------------------------------- #
+
+    service_names = []
+
+    for category in categories:
+        if isinstance(category, dict):
+            category_name = (
+                category.get("display_name")
+                or category.get("name")
+                or category.get("title")
+            )
+        else:
+            category_name = str(category)
+
+        category_name = _clean_text(category_name)
+
+        if category_name and category_name.lower() not in {
+            item.lower() for item in service_names
+        }:
+            service_names.append(category_name)
+
+    # Avoid generating excessive FAQs.
+    for service in service_names[:5]:
+        add_question(
+            f"Do you offer {service}?",
+            f"Yes. {name} is listed under the {service} category.",
+        )
+
+    # --------------------------------------------------------------- #
+    # 6. Reviews / customer feedback
+    # --------------------------------------------------------------- #
+
+    review_texts = []
+
+    for review in reviews[:2]:
+        if isinstance(review, dict):
+            text = (
+                review.get("text")
+                or review.get("review")
+                or review.get("comment")
+            )
+        else:
+            text = str(review)
+
+        text = _clean_text(text)
+
+        if text:
+            review_texts.append(text)
+
+    if review_texts:
+        review_answer = "Customers have shared the following feedback: " + " ".join(
+            review_texts
+        )
+
+        add_question(
+            "What do customers say?",
+            review_answer,
+        )
+
+    # --------------------------------------------------------------- #
+    # 7. Rating
+    # --------------------------------------------------------------- #
+
+    if rating is not None:
+        try:
+            rating_value = float(rating)
+            rating_text = f"{rating_value:.1f}/5"
+        except (TypeError, ValueError):
+            rating_text = str(rating)
+
+        if total_reviews:
+            add_question(
+                "How is the business rated?",
+                f"{name} has a Google rating of {rating_text} based on "
+                f"{total_reviews} review{'s' if str(total_reviews) != '1' else ''}.",
+            )
+        else:
+            add_question(
+                "How is the business rated?",
+                f"{name} has a Google rating of {rating_text}.",
+            )
+
+    # --------------------------------------------------------------- #
+    # 8. Areas served
+    # --------------------------------------------------------------- #
+
+    areas_answer = _extract_service_area(profile)
+
+    if areas_answer:
+        add_question(
+            "What areas do you serve?",
+            areas_answer,
+        )
+
+    # --------------------------------------------------------------- #
+    # 9. Business description
+    # --------------------------------------------------------------- #
+
+    description = (
+        profile.get("editorial_summary")
+        or profile.get("generative_summary")
+    )
+
+    if description:
+        add_question(
+            f"What is {name} about?",
+            str(description),
+        )
+
+    # Keep the output within a useful range.
+    questions = questions[:12]
+
+    return {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": questions,
+    }
+
+
+def _clean_text(value: Any) -> str:
+    """Normalize arbitrary values into clean single-line text."""
+    if value is None:
+        return ""
+
+    if isinstance(value, (list, tuple)):
+        value = ", ".join(str(item) for item in value)
+
+    if isinstance(value, dict):
+        value = (
+            value.get("text")
+            or value.get("name")
+            or value.get("display_name")
+            or ""
+        )
+
+    return " ".join(str(value).split()).strip()
+
+
+def _format_faq_hours(hours: list) -> str:
+    """Convert GBP hours into a readable FAQ answer."""
+    if not hours:
+        return ""
+
+    formatted = []
+
+    for item in hours:
+        if isinstance(item, dict):
+            day = (
+                item.get("day")
+                or item.get("day_name")
+                or item.get("weekday")
+            )
+
+            opening = (
+                item.get("open")
+                or item.get("open_time")
+                or item.get("opens")
+            )
+
+            closing = (
+                item.get("close")
+                or item.get("close_time")
+                or item.get("closes")
+            )
+
+            if day and opening and closing:
+                formatted.append(
+                    f"{_clean_text(day)}: "
+                    f"{_clean_text(opening)}–{_clean_text(closing)}"
+                )
+            elif day:
+                formatted.append(_clean_text(day))
+
+        else:
+            text = _clean_text(item)
+            if text:
+                formatted.append(text)
+
+    return "; ".join(formatted)
+
+
+def _extract_service_area(profile: dict) -> str:
+    """Extract service-area information when available."""
+    possible_keys = (
+        "service_area",
+        "service_areas",
+        "areas_served",
+        "area_served",
+        "served_areas",
+    )
+
+    for key in possible_keys:
+        value = profile.get(key)
+
+        if value:
+            if isinstance(value, list):
+                values = [_clean_text(item) for item in value]
+                values = [item for item in values if item]
+
+                if values:
+                    return f"{profile.get('name', 'The business')} serves {', '.join(values)}."
+
+            text = _clean_text(value)
+
+            if text:
+                return f"{profile.get('name', 'The business')} serves {text}."
+
+    return ""
 
 # --------------------------------------------------------------------- #
 # GBP JSON file (the same file the CLI produces)                         #
@@ -127,7 +447,18 @@ def _safe_filename(s: str) -> str:
     s = re.sub(r"[^A-Za-z0-9._-]+", "_", s).strip("._-")
     return s or "query"
 
-
+def _write_faq_jsonld_file(faq_jsonld: dict) -> None:
+    """Persist the standalone FAQPage JSON-LD artifact."""
+    try:
+        with open(FAQ_JSONLD_FILE, "w", encoding="utf-8") as fh:
+            json.dump(
+                faq_jsonld,
+                fh,
+                indent=2,
+                ensure_ascii=False,
+            )
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Could not write %s: %s", FAQ_JSONLD_FILE, exc)
 # --------------------------------------------------------------------- #
 # High-level: pick a business and run the full GBP -> SEO pipeline       #
 # --------------------------------------------------------------------- #
@@ -156,68 +487,65 @@ def select_and_analyze(place_id: str, save_to_disk: bool = True) -> dict:
 
     # Run the *existing* SEO_analyser via the blueprint helper. It already
     # imports the module and normalizes the result.
-    analysis = _try_gemini_analysis(profile) or _local_score(profile)
+    # analysis = _try_gemini_analysis(profile) or _local_score(profile)
 
     # Persist the raw Gemini output (when produced) to the same file the
     # CLI writes. Falls back to a normalized wrapper when only the local
     # scorer ran, so the file is always present.
-    _write_analysis_file(analysis, profile)
+    # _write_analysis_file(analysis, profile)
+
+    # competitive = _competitive_summary(profile)
+    
+    
+    analysis = _try_gemini_analysis(profile) or _local_score(profile)
+
+    faq_jsonld = build_faq_jsonld(profile, analysis)
+
+    _write_faq_jsonld_file(faq_jsonld)
+
+    _write_analysis_file(
+        analysis,
+        profile,
+        faq_jsonld=faq_jsonld,
+    )
 
     competitive = _competitive_summary(profile)
 
+    # return {
+    #     "profile": profile,
+    #     "analysis": analysis,
+    #     "competitive": competitive,
+    #     "gbp_json_path": str(gbp_json_path) if gbp_json_path else "",
+    #     "analysis_path": str(ANALYSIS_FILE),
+    # }
     return {
-        "profile": profile,
-        "analysis": analysis,
-        "competitive": competitive,
-        "gbp_json_path": str(gbp_json_path) if gbp_json_path else "",
-        "analysis_path": str(ANALYSIS_FILE),
-    }
+    "profile": profile,
+    "analysis": analysis,
+    "competitive": competitive,
+    "faq_jsonld": faq_jsonld,
+    "gbp_json_path": str(gbp_json_path) if gbp_json_path else "",
+    "analysis_path": str(ANALYSIS_FILE),
+}
 
 
-def _write_analysis_file(analysis: dict, profile: dict, filename: str = "google_profile_analysis.json") -> None:
-    """Write analysis to a JSON file."""
-    out_path = BASE_DIR / filename
+def _write_analysis_file(analysis: dict, profile: dict, faq_jsonld: dict | None = None) -> None:
+    """Write ``google_profile_analysis.json`` in the same location the CLI
+    script does. We persist the *normalized* analysis (the same shape the
+    UI renders) so reloading the page from disk shows the same report."""
     try:
-        with open(out_path, "w", encoding="utf-8") as fh:
+        with open(ANALYSIS_FILE, "w", encoding="utf-8") as fh:
             json.dump(
                 {
                     "profile": {k: v for k, v in profile.items() if k != "raw"},
                     "analysis": analysis,
+                    "faq_jsonld": faq_jsonld or build_faq_jsonld(profile, analysis),
                 },
                 fh,
                 indent=2,
                 ensure_ascii=False,
             )
     except Exception as exc:  # noqa: BLE001
-        log.warning("Could not write %s: %s", out_path, exc)
-
-def analyze_aeo(place_id: str) -> dict:
-    """Run the full AEO analysis pipeline."""
-    profile, error = get_profile(place_id)
-    if profile is None:
-        raise LookupError(error or "profile_not_found")
-
-    analysis = None
-    try:
-        import AEO_analyser
-        analysis = AEO_analyser.analyze_aeo(profile)
-    except Exception as exc:
-        log.warning("AEO Gemini analysis failed, falling back to local: %s", exc)
-
-    if analysis is None:
-        try:
-            import AEO_analyser
-            analysis = AEO_analyser.local_aeo_score(profile)
-        except Exception as exc:
-            log.error("AEO local score failed: %s", exc)
-            raise RuntimeError("AEO analysis completely failed")
-
-    _write_analysis_file(analysis, profile, "aeo_profile_analysis.json")
-
-    return {
-        "profile": profile,
-        "analysis": analysis,
-    }
+        log.warning("Could not write %s: %s", ANALYSIS_FILE, exc)
 
 
 # --------------------------------------------------------------------- #
