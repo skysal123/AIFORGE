@@ -97,6 +97,9 @@ class BaseConfig:
         os.environ.get("CONTACT_EMAIL", "aiforgetechno@gmail.com"),
     )
 
+    # ---- WhatsApp / contact ----
+    WHATSAPP_NUMBER = os.environ.get("WHATSAPP_NUMBER", "919975171729")
+
     # ---- Brand ----
     BRAND_NAME = "AIForge Technologies"
     BRAND_TAGLINE = "From ideas to intelligent products."

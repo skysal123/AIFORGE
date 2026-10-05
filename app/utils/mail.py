@@ -83,12 +83,39 @@
 import logging
 import os
 from threading import Thread
+from urllib.parse import quote
 
-from flask import current_app
+from flask import current_app, has_app_context
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
 log = logging.getLogger(__name__)
+
+
+def build_whatsapp_enquiry_url(enquiry) -> str | None:
+    """Build a wa.me URL with the user-entered enquiry details prefilled."""
+    if has_app_context():
+        phone = (current_app.config.get("WHATSAPP_NUMBER") or "919975171729").strip()
+    else:
+        phone = "919975171729"
+    phone = "".join(ch for ch in phone if ch.isdigit())
+
+    if not phone:
+        log.warning("WhatsApp number is not configured.")
+        return None
+
+    lines = [
+        "Hi AIForge Technologies, I would like to enquire about your services.",
+        f"Name: {getattr(enquiry, 'name', '') or 'Not provided'}",
+        f"Email: {getattr(enquiry, 'email', '') or 'Not provided'}",
+        f"Phone: {getattr(enquiry, 'phone', '') or 'Not provided'}",
+        f"Interest: {getattr(enquiry, 'interest', '') or 'General enquiry'}",
+        "",
+        "Project details:",
+        getattr(enquiry, 'message', '') or "No details provided.",
+    ]
+    message = "\n".join(lines)
+    return f"https://wa.me/{phone}?text={quote(message)}"
 
 
 def _send_async(app, message):

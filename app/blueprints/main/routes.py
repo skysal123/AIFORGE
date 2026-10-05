@@ -6,7 +6,7 @@ from wtforms.validators import DataRequired, Email, Length, Optional
 
 from ...extensions import csrf, db, mail
 from ...models import Enquiry
-from ...utils.mail import send_enquiry_notification
+from ...utils.mail import build_whatsapp_enquiry_url, send_enquiry_notification
 from . import main_bp
 
 
@@ -96,6 +96,11 @@ def contact():
         )
         db.session.add(enquiry)
         db.session.commit()
+
+        whatsapp_url = build_whatsapp_enquiry_url(enquiry)
+        if whatsapp_url:
+            return redirect(whatsapp_url)
+
         send_enquiry_notification(enquiry)
         flash("Thanks — we'll get back to you within one business day.", "success")
         return redirect(url_for("main.thank_you"))
